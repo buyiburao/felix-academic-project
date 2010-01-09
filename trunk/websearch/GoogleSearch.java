@@ -181,7 +181,7 @@ public class GoogleSearch  implements SearchEngine
             records[i] = new Record(url, snippet, title);
         }
         BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(bs.size());
-        ThreadPoolExecutor pool = new ThreadPoolExecutor(20, 200, 10, TimeUnit.MINUTES, queue);
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(150, 200, 3, TimeUnit.MINUTES, queue);
         
         for (int i = 0; i < bs.size(); i++)
         {
@@ -239,6 +239,7 @@ public class GoogleSearch  implements SearchEngine
         while((line = reader.readLine()) != null)
         {
             submitQuery(line, "query.data/" + i++);
+            System.out.println("Processing Query No." + i);
         }
     }
 
