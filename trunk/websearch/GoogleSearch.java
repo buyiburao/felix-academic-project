@@ -1,10 +1,64 @@
 package websearch;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
 import java.util.Date;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+class Record extends Thread
+{
+    public String getUrl()
+    {
+        return url;
+    }
+
+    public String getSnippet()
+    {
+        return googleSnippet;
+    }
+
+    public String getTitle()
+    {
+        return title;
+    }
+
+    public String getBody()
+    {
+        return body;
+    }
+
+    String url;
+    String googleSnippet;
+    String title;
+    String body;
+    
+    public Record(String url, String snippet, String title)
+    {
+        this.url = url;
+        this.googleSnippet = snippet;
+        this.title = title;
+        this.body = null;
+    }
+    
+    public void run()
+    {
+        HtmlParserDriver driver = new HtmlParserDriver();
+        body = driver.getBodyText(url).replaceAll("\\s+", " ");
+    }
+}
+
 
 public class GoogleSearch  implements SearchEngine
 {
@@ -13,6 +67,7 @@ public class GoogleSearch  implements SearchEngine
     private String query;
     private int num;
     private JSONArray[] res;
+ 
 
     public GoogleSearch(String q, int n) 
     {
@@ -63,16 +118,20 @@ public class GoogleSearch  implements SearchEngine
         }
     }
 
-    public int size() {
+    public int size() 
+    {
         return num;
     }
 
-    private String get(int i, String field) {
-        try {
+    private String get(int i, String field) 
+    {
+        try 
+        {
             int a = i/8;
             int b = i-a*8;
             Object o = res[a].get(b);
-            if (o != null) {
+            if (o != null) 
+            {
                 JSONObject jo = (JSONObject) o;
                 Object ret = jo.get(field);
                 if (ret != null)
@@ -87,14 +146,14 @@ public class GoogleSearch  implements SearchEngine
     {
         if (i >= num)
             return "";
-        return get(i, "title").replaceAll("<b>", "").replaceAll("</b>", "");
+        return get(i, "title")/*.replaceAll("<b>", "").replaceAll("</b>", "")*/;
     }
 
     public String snippet(int i) 
     {
         if (i >= num)
             return "";
-        return get(i, "content").replaceAll("<b>", "").replaceAll("</b>", "");
+        return get(i, "content")/*.replaceAll("<b>", "").replaceAll("</b>", "")*/;
     }
 
     public String url(int i) 
@@ -106,41 +165,81 @@ public class GoogleSearch  implements SearchEngine
             url = get(i, "postUrl");
         return url;
     }
-
+    
+    
+        
+    public static void submitQuery(String query, String file) throws IOException
+    {
+        GoogleSearch bs = new GoogleSearch(query, 120);
+       
+        Record[] records = new Record[bs.size()];
+        for (int i = 0; i < records.length; i++) 
+        {
+            String url = bs.url(i);
+            String snippet = bs.snippet(i);
+            String title = bs.title(i);
+            records[i] = new Record(url, snippet, title);
+        }
+        BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(bs.size());
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(20, 200, 10, TimeUnit.MINUTES, queue);
+        
+        for (int i = 0; i < bs.size(); i++)
+        {
+            pool.execute(records[i]);
+        }
+        
+        while(pool.getCompletedTaskCount() < 90)
+        {
+            try
+            {
+                Thread.sleep(5000);
+//                System.out.println(pool.getCompletedTaskCount());
+            } catch (InterruptedException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            System.out.println(pool.getCompletedTaskCount());
+        }
+        
+        try
+        {
+            Thread.sleep(60000);
+        } catch (InterruptedException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        pool.shutdown();
+        
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file))); 
+        for (int i = 0; i < records.length; i++)
+        {
+            Record record = records[i];
+            if (record.getBody() == null)
+                continue;
+//                System.out.println(i + ":" + record.getBody());
+            writer.write(String.format("##########%d##########\n", i));
+            writer.write(record.getTitle() + "\n");
+            writer.write(record.getSnippet() + "\n");
+            writer.write(record.getUrl() + "\n");
+            writer.write(record.getBody() + "\n");
+        }
+        writer.close();
+    }
     /**
      * @param args
      * @throws Exception
      */
     public static void main(String[] args) throws Exception 
     {
-        // TODO Auto-generated method stub
-        // String url =
-        // "http://api.bing.net/json.aspx?AppId=98B627A4C4949A1D6575D49ADA13CDD04D770EE5&Version=2.2&Market=en-US&Query=%s&Sources=web&Web.Count=%d&JsonType=raw";
-        // String context = WebService.get(String.format(url, "abc", 1));
-        // JSONObject json = new JSONObject(context);
-        // JSONObject res = (JSONObject) json.get("SearchResponse");
-        // JSONObject webres = (JSONObject) res.get("Web");
-        // JSONArray singles = (JSONArray) webres.get("Results");
-        // for (int i = 0; i < singles.length(); i++) {
-        // JSONObject single = (JSONObject) singles.get(i);
-        // System.out.println(single.get("Description"));
-        // System.out.println(single.get("Url"));
-        // System.out.println(single.get("DateTime"));
-        // System.out.println(single.get("DisplayUrl"));
-        // System.out.println(single.get("DeepLinks"));
-        // System.out.println(single.get("CacheUrl"));
-        // System.out.println(single.get("Title"));
-        // }
-        GoogleSearch bs = new GoogleSearch("\"Dr. Ruth\" \"last name\"", 100);
-        for (int i = 0; i < bs.size(); i++) {
-            System.out.println(i);
-            System.out.println(bs.title(i));
-            System.out.println(bs.snippet(i));
-            System.out.println(bs.url(i));
-            System.out.println();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(args[0])));
+        int i = 0;
+        String line = null;
+        while((line = reader.readLine()) != null)
+        {
+            submitQuery(line, "query.data/" + i++);
         }
-
-        //		System.out.println(WebService.get("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=Paris%20Hilton&start=5&hl=en"));
     }
 
 }
