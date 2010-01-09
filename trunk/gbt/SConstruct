@@ -1,0 +1,17 @@
+﻿import commands
+
+gsl_inc = commands.getoutput('gsl-config --prefix')+"/include"
+gsl_libdir = commands.getoutput('gsl-config --prefix')+"/lib"
+boost_inc = '/home/ke/usr/include'
+boost_libdir = '/home/ke/usr/lib'
+
+DefaultEnvironment(CPPPATH=["#", "#lib", "#classify", "#svmstruct", "#click", "#lowrank", boost_inc, gsl_inc],
+CCFLAGS = '-O3 -Wall', CXXFLAGS = '-Wno-deprecated', LIBPATH=["#", boost_libdir, gsl_libdir], LIBS=['gsl', 'gslcblas', 'boost_iostreams-mt'])
+
+matrices = ['#lib/matrices.cpp', '#lib/vectors.cpp']
+cart = ['#cart.cpp', '#tree.cpp']
+common = ['#rank_common.cpp']
+
+Program('gbrank.exe', ['rank_gbrank.cpp']+matrices+cart+common)
+Program('gbtree.exe', ['gbtree.cpp', 'rank_gbtree.cpp']+matrices+cart+common)
+
