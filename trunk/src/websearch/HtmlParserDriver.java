@@ -76,19 +76,15 @@ public class HtmlParserDriver
                     extractText((TagNode)node, builder);
             }
         }
-        return builder.toString();
+        return builder.toString().replaceAll("&[a-zA-Z];", "").replaceAll("\\s+", " ");
     }
 
-    public static String getBodyTextGoogleCached(String url)
+    public static String getBodyTextGoogleCached(String url) throws Exception
     {
         String html = "";
-        try
-        {
+
             html = WebService.getGoogleCached(url);
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+            
         return getBodyTextByHtml(html);
     }
     
@@ -113,6 +109,6 @@ public class HtmlParserDriver
     public static void main(String[] args)
     {
         String result = HtmlParserDriver.getBodyText("http://therapists.psychologytoday.com/rms/zip/48360.html");
-        System.out.println(result.replaceAll("\\s+", " "));
+        System.out.println(result);
     }
 }
