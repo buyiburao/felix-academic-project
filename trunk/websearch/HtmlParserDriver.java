@@ -5,6 +5,7 @@ import org.htmlparser.Parser;
 import org.htmlparser.nodes.TagNode;
 import org.htmlparser.nodes.TextNode;
 import org.htmlparser.util.NodeList;
+import org.htmlparser.util.ParserException;
 
 public class HtmlParserDriver
 {
@@ -14,7 +15,7 @@ public class HtmlParserDriver
     }
     
     
-    private void extractText(TagNode node, StringBuilder builder)
+    private static void extractText(TagNode node, StringBuilder builder)
     {
         String tagName =node.getTagName();
         if ( tagName.compareToIgnoreCase("a") == 0
@@ -51,52 +52,67 @@ public class HtmlParserDriver
             }
         }
     }
+    
+    
+    public static String getBodyTextByHtml(String html)
+    {
+        Parser parser = new Parser();
+        StringBuilder builder = new StringBuilder();
+        NodeList list = null;
+        try
+        {
+            parser.setInputHTML(html);
+            list = parser.parse(null);
+        } catch (ParserException e)
+        {   
+            list = new NodeList();
+        }
+        
+        for (Node node: list.toNodeArray())
+        {
+            if (node instanceof TagNode)
+            {
+                if (((TagNode)node).getTagName().equalsIgnoreCase("body"))
+                    extractText((TagNode)node, builder);
+            }
+        }
+        return builder.toString();
+    }
 
-    public String getBodyText(String url)
+    public static String getBodyTextGoogleCached(String url)
+    {
+        String html = "";
+        try
+        {
+            html = WebService.getGoogleCached(url);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return getBodyTextByHtml(html);
+    }
+    
+    public static String getBodyText(String url)
     {
         String html = null;
         
         try
         {
-            Parser parser = new Parser();
             html = WebService.get(url);
-            StringBuilder builder = new StringBuilder();
-            parser.setInputHTML(html);
-            NodeList list = parser.parse(null);
-            
-            for (Node node: list.toNodeArray())
-            {
-                if (node instanceof TagNode)
-                {
-                     extractText((TagNode)node, builder);
-                }
-            }
-            
-//            System.out.println(builder.toString());
-//            while(iter.hasMoreNodes())
-//            {
-//                i++;
-//                Node node = iter.nextNode();
-//                System.out.println(node.toString());
-//                if (node instanceof TextNode)
-//                    builder.append(((TextNode)node).getText());
-//            }
-            
-//            System.out.println(i);
-            
-            return builder.toString();
+//            System.out.println(html);
+//            int a = 0/0;
         }
         catch (Exception e)
         {
-            e.printStackTrace();
-            return "";
+                html = "";
         }
+        
+        return getBodyTextByHtml(html);
     }
     
     public static void main(String[] args)
     {
-        HtmlParserDriver pDriver = new HtmlParserDriver();
-        String result = pDriver.getBodyText("http://welcome.hp.com/country/nz/en/welcome.html#Product");
+        String result = HtmlParserDriver.getBodyText("http://therapists.psychologytoday.com/rms/zip/48360.html");
         System.out.println(result.replaceAll("\\s+", " "));
     }
 }
