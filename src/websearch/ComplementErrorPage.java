@@ -14,6 +14,7 @@ public class ComplementErrorPage
 {
     public static void main(String[] args) throws IOException, InterruptedException
     {
+        int errorCount = 0;
         for (int i = 0; i < 1000; i++)
         {
             System.out.println("Start file " + i);
@@ -33,16 +34,24 @@ public class ComplementErrorPage
                 String title = reader.readLine();
                 String snippet = reader.readLine();
                 String url = reader.readLine();
-                String body = reader.readLine().replace("&[a-zA-z];", "").replace("\\s+", " ").trim();
+                String body = reader.readLine().replaceAll("\\&[a-zA-z];", "").replaceAll("\\s+", " ").trim();
                 if (body.length() < 1)
                 {
                     System.out.print(startLine);
                     System.out.print(" Empty ");
-                    body = HtmlParserDriver.getBodyTextGoogleCached(url).replace("&[a-zA-z];", "").replace("\\s+", " ").trim();
-                    Random ran = new Random();
-                    Thread.sleep(1500 + ran.nextInt(2000));
-                    if (url.length() > 1) System.out.print("Success");
-                    System.out.println();
+                    try
+                    {
+                        body = HtmlParserDriver.getBodyTextGoogleCached(url).replaceAll("&[a-zA-z];", "").replaceAll("\\s+", " ").trim();
+                        if (url.length() > 1) System.out.print("Success");
+                        System.out.println();
+                        Thread.sleep(2000);
+                    } catch (Exception e)
+                    {
+                        // TODO Auto-generated catch block
+                        errorCount++;
+                        e.printStackTrace();
+                        Thread.sleep(60000);
+                    }
                 }
                 writer.write(String.format(format, startLine, title, snippet, url, body));
             }
