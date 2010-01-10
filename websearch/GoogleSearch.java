@@ -2,6 +2,7 @@ package websearch;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -181,7 +182,7 @@ public class GoogleSearch  implements SearchEngine
             records[i] = new Record(url, snippet, title);
         }
         BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(bs.size());
-        ThreadPoolExecutor pool = new ThreadPoolExecutor(150, 200, 3, TimeUnit.MINUTES, queue);
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(150, 200, 30, TimeUnit.SECONDS, queue);
         
         for (int i = 0; i < bs.size(); i++)
         {
@@ -204,13 +205,14 @@ public class GoogleSearch  implements SearchEngine
         
         try
         {
-            Thread.sleep(60000);
+            Thread.sleep(6000);
         } catch (InterruptedException e)
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         pool.shutdown();
+        System.out.println("outa");
         
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file))); 
         for (int i = 0; i < records.length; i++)
@@ -238,8 +240,15 @@ public class GoogleSearch  implements SearchEngine
         String line = null;
         while((line = reader.readLine()) != null)
         {
-            submitQuery(line, "query.data/" + i++);
-            System.out.println("Processing Query No." + i);
+            String file = "query.data/" + i;
+            File f1 = new File(file);
+            File f2 = new File("query.data/" + ++i);
+            
+            if (!f1.exists() || !f2.exists())
+            {
+                System.out.println("Processing " + file);
+                submitQuery(line, file);
+            }
         }
     }
 
