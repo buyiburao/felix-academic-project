@@ -15,7 +15,6 @@ public class WebService
      */
     public static void main(String[] args) throws Exception
     {
-        // TODO Auto-generated method stub
         System.out.println(getGoogleCached("http://therapists.psychologytoday.com/rms/zip/48360.html"));
     }
 
@@ -23,7 +22,7 @@ public class WebService
     {
         URL url = new URL(u);
         URLConnection connection = url.openConnection();
-        connection.setRequestProperty("User-agent","Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.8.1.3)");
+        connection.setRequestProperty("User-agent","Mozilla/5.0 (X11; U; Linux i686; zh-CN; rv:1.9.1.6) Gecko/20091216 Fedora/3.5.6-1.fc11 Firefox/3.5.6 GTB6");
         String line;
         StringBuilder builder = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(

@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+import os, random
+
+ran = random.Random()  
+#select n queries from query log
+n = 100
+line_number = int(os.popen('wc -l query_dist').read().split(' ')[0])
+
+#print 'total number:', line_number
+
+segment_size = line_number / n
+
+#print 'segment size:', segment_size
+
+def randomGet(list):
+#random select a query from list without '.' in it
+    query = '.'
+    count = 0
+    while '.' in query:
+        count += 1
+        if count > 1000:
+            return query
+        query = list[ran.randint(0, len(list) - 1)]
+    return query
+
+#out = open('selected_queries', 'w')
+count = 0
+list = []
+for line in open('query_dist'):
+    count += 1
+    list.append(line.split('\t')[0])
+    if count == segment_size:
+        print randomGet(list)
+        #out.write('%s\n'%(randomGet(list))) 
+        count = 0
+        list = []
+#out.close()
+        
+    
+
