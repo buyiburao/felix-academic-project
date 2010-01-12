@@ -2,26 +2,26 @@ package search.object;
 
 public class Term extends Token
 {
-    int id;
+    String normalized;
     
-    public Term(String term, int id)
+    public Term(String term, String normalized)
     {
         super(term);
-        this.id = id;
+        this.normalized = normalized;
     }
 
     public String getTerm()
     {
         return originalString;
     }
-
-    public int getId()
+    
+    public String getNormalized()
     {
-        return id;
+        return normalized;
     }
     
     public boolean equal(Term other)
     {
-        return this.id == other.id;
+        return this.normalized == other.normalized;
     }
 }

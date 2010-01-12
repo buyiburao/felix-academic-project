@@ -5,8 +5,10 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class MysqlDriver
 {
@@ -14,13 +16,11 @@ public class MysqlDriver
     private Statement statement;
     public MysqlDriver(String host, int port, String username, String password)
     {
-        //TODO
         connectionToken = String.format("jdbc:mysql://%s:%d/snippet?user=%s&password=%s", host, port, username, password);
     }
     
     public void connect() throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException
     {
-        //TODO
         Class.forName("com.mysql.jdbc.Driver");
         Class.forName("com.mysql.jdbc.Driver").newInstance();
         
@@ -54,6 +54,8 @@ public class MysqlDriver
         }
     }
     
+    
+    
     public boolean createTable() throws SQLException
     {
         String query = "create table snippet_record " +
@@ -79,23 +81,30 @@ public class MysqlDriver
     
     private String convert(String str)
     {
-        return str.replaceAll("\"", "\"\"").replaceAll("'", "''");
+        return str == null ? "" : str;
     }
     
     public boolean insertRecord(String query, String title, String url, String gsnippet, String cmpsnippet, String mysnippet)
     {
         String commit = String.format("insert into snippet_record (query, title, url, gsnippet, " +
         		"cmpsnippet, mysnippet) values ('%s', '%s', '%s', '%s', '%s', '%s');", 
-        		convert(query), convert(title),convert(url),convert(gsnippet), convert(cmpsnippet), convert(mysnippet));
+        		convert(query), convert(title),convert(url),convert(gsnippet), convert(cmpsnippet), 
+        		convert(mysnippet));
         try
         {
             statement.executeUpdate(commit);
         } catch (SQLException e)
         {
-            // TODO Auto-generated catch block
             return false;
         }
         return true;
+    }
+    
+    public boolean insertRecord(Record record)
+    {
+        return insertRecord(convert(record.getQuery()), convert(record.getTitle()), 
+                            convert(record.getUrl()), convert(record.getGsnippet()), 
+                            convert(record.getCmpsnippet()), convert(record.getMysnippet()));
     }
     
     public boolean deleteRecord(String query, String url) throws SQLException
@@ -112,6 +121,26 @@ public class MysqlDriver
         return true;
     }
     
+    public Set<String> getQuerySet()
+    {
+        
+        Set<String> querySet = new HashSet<String>();
+        try
+        {
+            String commit = String.format("select distinct query from snippet_record");
+            ResultSet rs = statement.executeQuery(commit);
+            while (rs.next())
+            {
+                querySet.add(rs.getString(1));
+            }
+            
+            return querySet;
+        } catch (SQLException e)
+        {
+            return new HashSet<String>();
+        }
+    }
+    
     public boolean deleteQuery(String query) throws SQLException
     {
         String commit = String.format("delete from snippet_record where query = '%s'", convert(query));
@@ -120,7 +149,6 @@ public class MysqlDriver
             statement.executeUpdate(commit);
         } catch (SQLException e)
         {
-            // TODO Auto-generated catch block
             return false;
         }
         return true;
@@ -132,15 +160,17 @@ public class MysqlDriver
         driver.connect();
 //        driver.dropTable();
 //        driver.createTable();
-        driver.insertRecord("1", "2", "3", "4", "5", "6");
+        driver.insertRecord("\"1", "2", "2", "4", "5", "6");
+        driver.insertRecord("2", "2", "2", "4", "5", "6");
+        driver.insertRecord("3", "2", "2", "4", "5", "6");
+        driver.insertRecord("5", "2", "7", "4", null, "6");
 //        driver.deleteRecord("1", "3");
 //        driver.deleteQuery("1");
-        List<Record> records = driver.query("1");
-        for(Record r : records)
+        Set<String> querySet = driver.getQuerySet();
+        for (String s : querySet)
         {
-            System.out.println(r.toString());
+            System.out.println(s);
         }
-        
     }
     
 }
