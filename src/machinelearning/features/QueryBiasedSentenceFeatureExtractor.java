@@ -1,9 +1,12 @@
 package machinelearning.features;
 
 import search.object.Query;
-import search.object.Sentence;
 
-public abstract class QueryBiasedSentenceFeatureExtractor
+public abstract class QueryBiasedSentenceFeatureExtractor extends SentenceFeatureExtractor
 {
-    public abstract double getFeature(Query query, Sentence sentence);
+    protected Query query;
+    public QueryBiasedSentenceFeatureExtractor(Query query)
+    {
+        this.query = query;
+    }
 }

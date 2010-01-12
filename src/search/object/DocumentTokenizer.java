@@ -5,6 +5,6 @@ import java.util.List;
 public abstract class DocumentTokenizer extends Tokenizer
 {
 
-    public abstract List<Sentence> tokenize(String string);
+    public abstract List<Sentence> tokenize(Document doc);
     
 }
