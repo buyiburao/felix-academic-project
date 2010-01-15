@@ -60,7 +60,7 @@ public class WikiDFTF {
 		reader.close();
 		PrintWriter writer = new PrintWriter(new FileWriter(args[2]));
 		for(String term : globalTermMap.keySet()){
-			writer.println(term + "\t" + globalTermMap.get(term));
+			writer.println(term + "\t" + globalTermMap.get(term).value);
 		}
 		writer.close();
 	}
