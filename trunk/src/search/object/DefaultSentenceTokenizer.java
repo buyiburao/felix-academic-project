@@ -1,9 +1,10 @@
 package search.object;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class DefaultSentenceTokenizer extends SentenceTokenizer
 {
@@ -21,7 +22,7 @@ public class DefaultSentenceTokenizer extends SentenceTokenizer
                     '@', '#', '$','%','^',
                     '&','*','(',')',
                     '<','>',',','.',':',
-                    '\"',';', '|', '/', '\\'};
+                    '\"',';'};
             
             for (int i = 0; i < set.length; i++)
             {
@@ -49,22 +50,28 @@ public class DefaultSentenceTokenizer extends SentenceTokenizer
     @Override
     public List<Term> tokenize(String string)
     {
-        List<Term> tokens = new LinkedList<Term>();
-        for (int start = 0, current = 0; start < string.length(); current++)
-        {
-            if(charSet.contains(string.charAt(current)) || current == string.length() - 1)
-            {
-                String term = string.substring(start, current + 1).trim();
-                tokens.add(new Term(term, termNormalize(term)));
-                start = current + 1;
-            }
-        }
+//        List<Term> tokens = new LinkedList<Term>();
+//        for (int start = 0, current = 0; start < string.length(); current++)
+//        {
+//            if(charSet.contains(string.charAt(current)) || current == string.length() - 1)
+//            {
+//                String term = string.substring(start, current + 1).trim();
+//                tokens.add(new Term(term, termNormalize(term)));
+//                start = current + 1;
+//            }
+//        }
+    	List<Term> tokens = new ArrayList<Term>();
+    	Pattern pattern = Pattern.compile("[^0-9a-zA-Z-']");
+    	String[] termStrs = pattern.split(string);
+    	for(String str : termStrs){
+    		tokens.add(new Term(str, termNormalize(str)));
+    	}
         return tokens;
     }
     
     public static void main(String[] args)
     {
-        String test = "You don't know how many times successful men have been fucked!";
+        String test = "Felix-2032 You don't know how many times successful men have been fucked!";
         DefaultSentenceTokenizer tokenizer = new DefaultSentenceTokenizer();
         for (Term t : tokenizer.tokenize(test))
         {
