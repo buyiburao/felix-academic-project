@@ -53,7 +53,7 @@ public class DefaulDocumentTokenizer extends DocumentTokenizer
         		"explanation. Sleepers may be woken in a state of distress, and be unable " +
         		"to get back to sleep for some time. Eating before bed, which triggers an " +
         		"increase in the body's metabolism and brain activity, is another potential " +
-        		"stimulus for nightmares.[1] The term \"nightmare\" refers to what was called " +
+        		"stimulus for nightmares..[1] The term \"nightmare\" refers to what was called " +
         		"Sleep Paralysis in the 19th century and earlier. Occasional nightmares are " +
         		"commonplace, but recurrent nightmares can interfere with sleep and may cause " +
         		"people to seek medical help. A recently proposed treatment consists of imagery " +
@@ -61,21 +61,21 @@ public class DefaulDocumentTokenizer extends DocumentTokenizer
         		"and other symptoms in acute stress disorder and post-traumatic stress " +
         		"disorder.[3]";
         
-        Document doc = new Document(test);
+//        Document doc = new Document(test);
 //        List<Sentence> sentences = doc.getSentences();
 //        for (Sentence s : sentences)
 //        {
 //            System.out.println(s.getString());
-//            for(Term t : s.getTerms())
-//            {
-//                System.out.println(t.getString() + "\t" + t.getNormalized());
-//            }
+////            for(Term t : s.getTerms())
+////            {
+////                System.out.println(t.getString() + "\t" + t.getNormalized());
+////            }
 //        }
         
-        System.out.println(doc.getOccur("or"));
-        System.out.println(doc.getSentences().get(0).getOccur("also"));
-        System.out.println(doc.getSentences().get(0).getOccur("bad"));
-        System.out.println(doc.getSentences().get(0).getOccur("dream"));
-        System.out.println(doc.getSentences().get(0).getOccur("a"));
+//        System.out.println(doc.getOccur("or"));
+//        System.out.println(doc.getSentences().get(0).getOccur("also"));
+//        System.out.println(doc.getSentences().get(0).getOccur("bad"));
+//        System.out.println(doc.getSentences().get(0).getOccur("dream"));
+//        System.out.println(doc.getSentences().get(0).getOccur("a"));
     }
 }
