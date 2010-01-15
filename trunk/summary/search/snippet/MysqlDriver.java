@@ -53,44 +53,177 @@ public class MysqlDriver
             return new LinkedList<Record>();
         }
     }
-    
-    
-    
-    public boolean createTable() throws SQLException
+
+    private void createSnippetTable() throws SQLException
     {
         String query = "create table snippet_record " +
-                        "(query varchar(100) not null, " +
-                        "title varchar(200), " +
-                        "url varchar(300) not null," +
-                        "gsnippet varchar(1000), " +
-                        "cmpsnippet varchar(1000)," +
-                        "mysnippet varchar(1000), " +
-                        "primary key(query,url));";
-        int state = statement.executeUpdate(query);
-
-        query = "create table page " +
-        "(url varchar(1000) not null, " +
-        "pagecontent varchar(40000), " +
-        "primary key(url));";
-        state = statement.executeUpdate(query);
-        
-        return state != 0;
+        "(query varchar(100) not null, " +
+        "title varchar(200), " +
+        "url varchar(300) not null," +
+        "gsnippet varchar(1000), " +
+        "cmpsnippet varchar(1000)," +
+        "mysnippet varchar(1000), " +
+        "primary key(query,url));";
+        statement.executeUpdate(query);
     }
     
     
-    public boolean dropTable() throws SQLException
+    private void createPageTable() throws SQLException
     {
-        String query = "drop table snippet_record;";
-        int state = statement.executeUpdate(query);
+        String query = "create table page " +
+        "(url varchar(1000) not null, " +
+        "pagecontent varchar(40000), " +
+        "primary key(url));";
+        statement.executeUpdate(query);
+    }
+    
+    private void createConceptTable() throws SQLException
+    {
+        String query = "create table concept" +
+        "(id int not null auto_increment," +
+        "sentence varchar(500) not null, " +
+        "concept varchar(500), " +
+        "primary key(id));";
+        statement.executeUpdate(query);
+    }
+    
+    private void createTrainingTable() throws SQLException
+    {
+        String query = "create table training " +
+        "(id int not null auto_increment," +
+        "query varchar(1000) not null, " +
+        "url varchar(1000) not null, " +
+        "sentence varchar(300) not null, " +
+        "rank int not null, " +
+        "primary key(id));";
+        statement.executeUpdate(query);
+    }
+    
+    private void createTestTable() throws SQLException
+    {
+        String query = "create table testing " +
+        "(id int not null auto_increment," +
+        "query varchar(1000) not null, " +
+        "url varchar(1000) not null, " +
+        "judege_base1_1 int not null, " +
+        "judege_base1_2 int not null, " +
+        "judege_base1_3 int not null, " +
+        "judege_base2_1 int not null, " +
+        "judege_base2_2 int not null, " +
+        "judege_base2_3 int not null, " +
+        "judege_our_1 int not null, " +
+        "judege_our_2 int not null, " +
+        "judege_our_3 int not null, " +
+        "primary key(id));";
+        statement.executeUpdate(query);
+    }
+    
+    
+    
+    public void createAllTable()
+    {
+        try
+        {
+            createSnippetTable();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
         
-        query = "drop table page;";
-        state = statement.executeUpdate(query);
-        return state != 0;
+        try
+        {
+            createPageTable();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        try
+        {
+            createConceptTable();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        
+        try
+        {
+            createTrainingTable();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        try
+        {
+            createTestTable();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void dropTable()
+    {
+//        String query = "drop table snippet_record;";
+//        statement.executeUpdate(query);
+//        
+//        query = "drop table page;";
+//        statement.executeUpdate(query);
     }
     
     public boolean insertPage(String url, String pagecontent)
     {
         String commit = String.format("insert into page (url, pagecontent) values ('%s', '%s')", convert(url), convert(pagecontent));
+        try
+        {
+            statement.executeUpdate(commit);
+        } catch (SQLException e)
+        {
+//            e.printStackTrace();   
+//      }
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean insertConcept(String sentence, String concept)
+    {
+        String commit = String.format("insert into concept (sentence, concept) " + "values ('%s', '%s')",
+                convert(sentence), convert(concept));
+        try
+        {
+            statement.executeUpdate(commit);
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean insertTranslate(String sentence, String chinese)
+    {
+        String commit = String.format("insert into translate (sentence, chinese) values ('%s', '%s')", 
+                convert(sentence), convert(chinese));
+        try
+        {
+            statement.executeUpdate(commit);
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    
+    public boolean insertTraining(String query, String url, String sentence, int rank)
+    {
+        String commit = String.format("insert into training(query, url, sentence, rank) values ('%s', '%s', '%s', %d)", 
+                convert(query), convert(url), convert(sentence), rank);
         try
         {
             statement.executeUpdate(commit);
@@ -102,6 +235,106 @@ public class MysqlDriver
         return true;
     }
     
+    public boolean insertTest(String query, String url, int[] scores)
+    {
+        String commit = String.format("insert into training" +
+        		"(query, " +
+        		"url, " +
+        		"judge_base1_1, " +
+        		"judge_base1_2, " +
+        		"judge_base1_3, " +
+        		"judge_base1_1, " +
+        		"judge_base1_2, " +
+        		"judge_base1_3, " +
+        		"judge_our_1, " +
+        		"judge_our_2, " +
+        		"judge_our_3) valuse ('%s', '%s', %d, %d, %d, %d, %d, %d, %d, %d, %d);",
+        		
+                convert(query), convert(url), 
+                scores[0],
+                scores[1], 
+                scores[2], 
+                scores[3], 
+                scores[4], 
+                scores[5], 
+                scores[6], 
+                scores[7], 
+                scores[8]
+                );
+        try
+        {
+            statement.executeUpdate(commit);
+        } catch (SQLException e)
+        {
+//            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+    
+    public int[] getTest(String query, String url)
+    {
+        String commit = String.format("select * from testing where query = '%s' and url = '%s'", convert(query), convert(url));
+        ResultSet set = null;
+        try
+        {
+            set = statement.executeQuery(commit);
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+        
+        int[] ret = new int[9];
+        try
+        {
+            if (!set.next())
+                return null;
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        
+        for (int i = 0; i < 9; i++)
+        {
+            try
+            {
+                ret[i] = set.getInt(i + 3);
+            } catch (SQLException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return ret;
+    }
+
+    public int getRank(String query, String url, String sentence)
+    {
+        String commit = String.format("select * from training where query = '%s' and url = '%s' and sentence = '%s'", convert(query), convert(url));
+        ResultSet set = null;
+        try
+        {
+            set = statement.executeQuery(commit);
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return 0;
+        }
+        
+        int rank = 0;
+        try
+        {
+            if (!set.next())
+                return 0;
+            rank = set.getInt(4);
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        return rank;
+    }
     public String getPage(String url)
     {
         String commit = String.format("select pagecontent from page where url = '%s'", url);
@@ -110,7 +343,8 @@ public class MysqlDriver
             ResultSet set = statement.executeQuery(commit);
             set.next();
             return set.getString("pagecontent");
-        } catch (SQLException e)
+        } 
+        catch (SQLException e)
         {
             e.printStackTrace();
             return "";
@@ -195,15 +429,7 @@ public class MysqlDriver
     
     public void clear()
     {
-        try
-        {
-            dropTable();
-            createTable();
-        } catch (SQLException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        
     }
     
     public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException
@@ -217,7 +443,8 @@ public class MysqlDriver
 //        driver.insertRecord("2", "2", "2", "4", "5", "6");
 //        driver.insertRecord("3", "2", "2", "4", "5", "6");
 //        driver.insertRecord("5", "2", "7", "4", null, "6");
-//        driver.deleteRecord("1", "3");
+//        driver.deleteRecord("1", "3");dropTable();
+        driver.createAllTable();
 //        driver.deleteQuery("1");
 //        Set<String> querySet = driver.getQuerySet();
 //        for (String s : querySet)
@@ -227,7 +454,6 @@ public class MysqlDriver
         
 //        Set<String> qset = driver.getQuerycreateTableSet();
 //        System.out.println(qset.size());
-        
     }
     
 }

@@ -21,7 +21,7 @@ public class DefaultSentenceTokenizer extends SentenceTokenizer
                     '@', '#', '$','%','^',
                     '&','*','(',')',
                     '<','>',',','.',':',
-                    '\"',';'};
+                    '\"',';', '|', '/', '\\'};
             
             for (int i = 0; i < set.length; i++)
             {
