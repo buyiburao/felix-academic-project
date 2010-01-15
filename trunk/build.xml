@@ -1,0 +1,21 @@
+<project name = "client" default="jar" basedir=".">
+	<path id = "compile.classpath">
+		<fileset dir = "lib">
+			<include name = "*.jar" />
+		</fileset>
+	</path>
+	<target name="compile">
+		<mkdir dir="build"/>
+		<javac srcdir="src" destdir="build">
+			<classpath refid = "compile.classpath"/>
+		</javac>
+	</target>
+	<target name="jar" depends="compile">
+		<jar destfile="wikidftf.jar">
+			<fileset dir="build">
+				<include name="**/*.class"/>
+			</fileset>
+			<attribute name = "Main-class" value="util.WikiDFTF"/>
+		</jar>
+	</target>
+</project>
