@@ -12,8 +12,8 @@ import search.object.Term;
 
 
 public class WikiDFTF {
-	static Map<Term, Integer> globalTermMap = new HashMap<Term, Integer>();
-	static Map<Term, Integer> localTermMap = new HashMap<Term, Integer>();
+	static Map<String, IntObject> globalTermMap = new HashMap<String, IntObject>();
+	static Map<String, IntObject> localTermMap = new HashMap<String, IntObject>();
 	/**
 	 * @param args
 	 */
@@ -37,55 +37,41 @@ public class WikiDFTF {
 			String text = reader.next().split("\t", 2)[1];
 			List<Term> tokens = tokenizer.tokenize(text);
 			for(Term t : tokens){
-				if (localTermMap.containsKey(t))
-					localTermMap.put(t, localTermMap.get(t) + 1);
+				IntObject obj = localTermMap.get(t.getNormalized());
+				if (obj != null)
+					obj.value++;
 				else
-					localTermMap.put(t, 1);
+					localTermMap.put(t.getNormalized(), new IntObject(1));
 			}
-			for(Term t : localTermMap.keySet()){
+			for(String t : localTermMap.keySet()){
 				int addValue = 0;
 				if (tf)
-					addValue = localTermMap.get(t);
+					addValue = localTermMap.get(t).value;
 				else
 					addValue = 1;
-				Integer it = globalTermMap.get(t);
+				IntObject it = globalTermMap.get(t);
 				if (it == null)
-					globalTermMap.put(t, addValue);
+					globalTermMap.put(t, new IntObject(addValue));
 				else{
-					globalTermMap.put(t, globalTermMap.get(t) + addValue);
+					it.value += addValue;
 				}
 			}
 		}
 		reader.close();
 		PrintWriter writer = new PrintWriter(new FileWriter(args[2]));
-		for(Term term : globalTermMap.keySet()){
-			writer.println(term.getNormalized() + "\t" + globalTermMap.get(term));
+		for(String term : globalTermMap.keySet()){
+			writer.println(term + "\t" + globalTermMap.get(term));
 		}
 		writer.close();
 	}
 
 }
 
-class Item
+class IntObject
 {
-	public Item(int tf, int df){
-		this.tf = tf;
-//		this.df = df;
+	public IntObject(int v){
+		value = v;
 	}
-	public int getDF(){
-//		return df;
-		return 0;
-	}
-	public void setDF(int df){
-//		this.df = df;
-	}
-	public int getTF(){
-		return tf;
-	}
-	public void setTF(int tf){
-		this.tf = tf;
-	}
-//	int df = 0;
-	int tf = 0;
+	int value;
 	
 }
