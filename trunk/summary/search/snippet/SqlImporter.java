@@ -80,7 +80,8 @@ public class SqlImporter
                 BufferedReader rreader = new BufferedReader(new InputStreamReader(new FileInputStream(dir + i)));
                 @SuppressWarnings("unused")
                 String line = null;
-                while((line = rreader.readLine()) != null)
+                int docCount = 0;
+                while((line = rreader.readLine()) != null && docCount < 20)
                 {
                     if (++cc % 5 == 0)
                     {
@@ -92,25 +93,21 @@ public class SqlImporter
                     String page = rreader.readLine();
                     
                     page = page.replaceAll("&([a-zA-Z]+|#[0-9]+);", "").replaceAll("\\s+", " ");
-                    if (page.length() > 50)
+                    if (page.length() > 249)
                     {
-                        driver.insertRecord(query, title, url, gsnippet, null, null);
+                        docCount++;
+                        driver.insertRecord(query, title, url, gsnippet, i % 5 != 0/*training or test 1:4*/);
                         driver.insertPage(url, page);
                         Document doc = new Document(page);
                         for(Sentence s : doc.getSentences())
                         {
                             String sentence = s.getString();
-                            int size = driver.getConcept(sentence).size();
-//                            System.out.println(size);
-                            if (size < 10)
-                            {    
-                                while(pool.getQueue().size() > 10)
-                                {
-                                    Thread.sleep(30);
-                                }
-//                                System.out.println("a");
-                                pool.execute(new ConceptFetcher(sentence));
+                            while (pool.getQueue().size() > 10)
+                            {
+                                Thread.sleep(30);
                             }
+                            // System.out.println("a");
+                            pool.execute(new ConceptFetcher(sentence));
                         }
                     }
                 }
