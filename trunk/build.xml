@@ -15,7 +15,9 @@
 			<fileset dir="build">
 				<include name="**/*.class"/>
 			</fileset>
-			<attribute name = "Main-class" value="util.WikiDFTF"/>
+			<manifest>
+				<attribute name = "Main-class" value="util.WikiDFTF"/>
+			</manifest>
 		</jar>
 	</target>
 </project>
