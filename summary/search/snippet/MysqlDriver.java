@@ -273,10 +273,9 @@ public class MysqlDriver
         return true;
     }
     
-    public int[][] getTest(String query, String url)
+    public List<List<Integer>> getTest(String query, String url)
     {
-        int [][] ret = new int[100][];
-        
+        List<List<Integer>> toRet = new ArrayList<List<Integer>>();
         String commit = String.format("select * from testing where query = '%s' and url = '%s'", convert(query), convert(url));
         ResultSet set = null;
         try
