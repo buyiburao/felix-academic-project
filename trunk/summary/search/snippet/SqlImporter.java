@@ -17,9 +17,6 @@ import search.esa.GetEsa;
 import search.object.Document;
 import search.object.Sentence;
 
-
-
-
 public class SqlImporter
 {
     
@@ -95,7 +92,6 @@ public class SqlImporter
                     page = page.replaceAll("&([a-zA-Z]+|#[0-9]+);", "").replaceAll("\\s+", " ");
                     if (page.length() > 249)
                     {
-                        docCount++;
                         driver.insertRecord(query, title, url, gsnippet, i % 5 != 0/*training or test 1:4*/);
                         driver.insertPage(url, page);
                         Document doc = new Document(page);
@@ -109,6 +105,7 @@ public class SqlImporter
                             // System.out.println("a");
                             pool.execute(new ConceptFetcher(sentence));
                         }
+                        docCount++;
                     }
                 }
             }
