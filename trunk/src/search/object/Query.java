@@ -39,7 +39,7 @@ public class Query
         {
             for(Term t : terms)
             {
-                occurence.addTerm(t.normalized);
+                occurence.addTerm(t.getNormalized());
             }
         }
     }

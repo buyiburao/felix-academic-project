@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -94,6 +95,7 @@ public class MysqlDriver
         "query varchar(1000) not null, " +
         "url varchar(1000) not null, " +
         "sentence varchar(300) not null, " +
+        "user varchar(30) not null, " +
         "rank int not null, " +
         "primary key(id));";
         statement.executeUpdate(query);
@@ -114,11 +116,10 @@ public class MysqlDriver
         "judege_our_1 int not null, " +
         "judege_our_2 int not null, " +
         "judege_our_3 int not null, " +
+        "user varchar(30) not null, " +
         "primary key(id));";
         statement.executeUpdate(query);
     }
-    
-    
     
     public void createAllTable()
     {
@@ -172,7 +173,7 @@ public class MysqlDriver
 //        statement.executeUpdate(query);
 //        
 //        query = "drop table page;";
-//        statement.executeUpdate(query);
+//        statement.executeUpdate(query    
     }
     
     public boolean insertPage(String url, String pagecontent)
@@ -205,25 +206,31 @@ public class MysqlDriver
         return true;
     }
     
-    public boolean insertTranslate(String sentence, String chinese)
+    public Set<String> getConcept(String sentence)
     {
-        String commit = String.format("insert into translate (sentence, chinese) values ('%s', '%s')", 
-                convert(sentence), convert(chinese));
+        Set<String> concept = new HashSet<String>();
+        String commit = String.format("select * from concept where sentence = '%s'", convert(sentence));
+        ResultSet set = null;
         try
         {
-            statement.executeUpdate(commit);
-        } catch (SQLException e)
+            set = statement.executeQuery(commit);
+            while(set.next())
+            {
+                concept.add(set.getString("concept"));
+            }
+        }
+        catch (SQLException e)
         {
             e.printStackTrace();
-            return false;
+            return null;
         }
-        return true;
+        return concept;
     }
     
-    public boolean insertTraining(String query, String url, String sentence, int rank)
+    public boolean insertTraining(String query, String url, String sentence, String user, int rank)
     {
-        String commit = String.format("insert into training(query, url, sentence, rank) values ('%s', '%s', '%s', %d)", 
-                convert(query), convert(url), convert(sentence), rank);
+        String commit = String.format("insert into training(query, url, sentence, user, rank) values ('%s', '%s', '%s', '%s', %d)", 
+                convert(query), convert(url), convert(sentence), convert(user), rank);
         try
         {
             statement.executeUpdate(commit);
@@ -235,7 +242,7 @@ public class MysqlDriver
         return true;
     }
     
-    public boolean insertTest(String query, String url, int[] scores)
+    public boolean insertTest(String query, String url, String user, int[] scores)
     {
         String commit = String.format("insert into training" +
         		"(query, " +
@@ -248,7 +255,8 @@ public class MysqlDriver
         		"judge_base1_3, " +
         		"judge_our_1, " +
         		"judge_our_2, " +
-        		"judge_our_3) valuse ('%s', '%s', %d, %d, %d, %d, %d, %d, %d, %d, %d);",
+        		"judge_our_3," +
+        		"user) valuse ('%s', '%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, '%s');",
         		
                 convert(query), convert(url), 
                 scores[0],
@@ -259,7 +267,8 @@ public class MysqlDriver
                 scores[5], 
                 scores[6], 
                 scores[7], 
-                scores[8]
+                scores[8], 
+                convert(user)
                 );
         try
         {
@@ -272,8 +281,10 @@ public class MysqlDriver
         return true;
     }
     
-    public int[] getTest(String query, String url)
+    public int[][] getTest(String query, String url)
     {
+        int [][] ret = new int[100][];
+        
         String commit = String.format("select * from testing where query = '%s' and url = '%s'", convert(query), convert(url));
         ResultSet set = null;
         try
@@ -286,32 +297,43 @@ public class MysqlDriver
             return null;
         }
         
-        int[] ret = new int[9];
+        int count = 0;
         try
         {
-            if (!set.next())
-                return null;
+            while(set.next())
+            {
+                int[] add = new int[9];
+                for (int i = 0; i < 9; i++)
+                {
+                    try
+                    {
+                        add[i] = set.getInt(i + 3);
+                    } catch (SQLException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+                ret[count++] = add;
+            }
+            
         } catch (SQLException e)
         {
             e.printStackTrace();
         }
         
-        for (int i = 0; i < 9; i++)
+        int[][] temp = new int[count][];
+        for (int i = 0; i < count; i++)
         {
-            try
-            {
-                ret[i] = set.getInt(i + 3);
-            } catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
+            temp[i] = ret[i];
         }
-        return ret;
+        return temp;
     }
 
-    public int getRank(String query, String url, String sentence)
+    public int getRank(String query, String url, String sentence, String user)
     {
-        String commit = String.format("select * from training where query = '%s' and url = '%s' and sentence = '%s'", convert(query), convert(url));
+        String commit = String.format("select * from training where query = '%s' " +
+        		"and url = '%s' and sentence = '%s' and user = '%s'",
+        		convert(query), convert(url), convert(sentence), convert(user));
         ResultSet set = null;
         try
         {
@@ -444,13 +466,18 @@ public class MysqlDriver
 //        driver.insertRecord("3", "2", "2", "4", "5", "6");
 //        driver.insertRecord("5", "2", "7", "4", null, "6");
 //        driver.deleteRecord("1", "3");dropTable();
-        driver.createAllTable();
+//        driver.createAllTable();
 //        driver.deleteQuery("1");
 //        Set<String> querySet = driver.getQuerySet();
 //        for (String s : querySet)
 //        {
 //            System.out.println(s);
 //        }
+        
+        for(String concept :driver.getConcept("What AR stands for?"))
+        {
+            System.out.println(concept);
+        }
         
 //        Set<String> qset = driver.getQuerycreateTableSet();
 //        System.out.println(qset.size());

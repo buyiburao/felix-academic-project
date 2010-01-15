@@ -6,7 +6,7 @@ import java.net.URL;
 
 public class GetEsa
 {
-    public static String server = "http://192.168.4.2:8080/esa/esa";
+    public static String server = "http://192.168.4.148:8080/esa/esa";
 
     public static EsaInfo getEsa(String query)
     {

@@ -17,9 +17,6 @@ import search.esa.GetEsa;
 import search.object.Document;
 import search.object.Sentence;
 
-import com.google.api.translate.Language;
-import com.google.api.translate.Translate;
-
 
 
 
@@ -67,7 +64,7 @@ public class SqlImporter
 //        driver.clear();
         
         BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(100);
-        ThreadPoolExecutor pool = new ThreadPoolExecutor(20, 100, 30, TimeUnit.SECONDS, queue);
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(2, 100, 30, TimeUnit.SECONDS, queue);
 
         int count = 0;
         if (!dir.endsWith("/"))
@@ -103,12 +100,17 @@ public class SqlImporter
                         for(Sentence s : doc.getSentences())
                         {
                             String sentence = s.getString();
-                            
-                            while(pool.getQueue().size() > 50)
-                            {
-                                Thread.sleep(30);
+                            int size = driver.getConcept(sentence).size();
+//                            System.out.println(size);
+                            if (size < 10)
+                            {    
+                                while(pool.getQueue().size() > 10)
+                                {
+                                    Thread.sleep(30);
+                                }
+//                                System.out.println("a");
+                                pool.execute(new ConceptFetcher(sentence));
                             }
-                            pool.execute(new ConceptFetcher(sentence));
                         }
                     }
                 }
@@ -128,20 +130,5 @@ public class SqlImporter
     {
         SqlImporter importer = new SqlImporter();
         importer.importFile("query", "query.data");
-        
-
-        String translatedText = null;
-        try
-        {
-            translatedText = Translate.execute("", Language.ENGLISH, Language.CHINESE_SIMPLIFIED);
-        } catch (Exception e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        System.out.println(translatedText);
-
-        
     }
 }
