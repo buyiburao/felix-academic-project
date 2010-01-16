@@ -18,37 +18,42 @@ import search.esa.GetEsa;
 import search.object.Document;
 import search.object.Sentence;
 
+import com.google.api.translate.Language;
+import com.google.api.translate.Translate;
+
 public class SqlImporter
 {
     
     static class ConceptFetcher extends Thread
     {
         private String sentence;
-        public ConceptFetcher(String sentence)
+        private String url;
+        public ConceptFetcher(String url, String sentence)
         {
             this.sentence = sentence;
+            this.url = url;
         }
         
         public void run()
         {
-            EsaInfo ei;
-            if (sentence.length() > 500 || sentence.trim().length() < 1)
-                return;
             try
             {
-                ei = GetEsa.getEsa(sentence);
+                EsaInfo ei = GetEsa.getEsa(sentence);
                 ConceptVector vector = new ConceptVector(ei);
                 driver.insertConcept(sentence, vector);
+                String translation = Translate.execute(sentence, Language.ENGLISH, Language.CHINESE_SIMPLIFIED);
+                driver.insertTranslation(url, sentence, translation);
             } catch (Exception e1)
             {
                 // TODO Auto-generated catch block
+                System.out.println(sentence);
                 e1.printStackTrace();
             }
             // Thread.sleep(30);
         }
     }
 
-    //    private MysqlDriver driver = new MysqlDriver("192.168.3.19", 3306, "monty", "something");
+    // private MysqlDriver driver = new MysqlDriver("192.168.3.19", 3306, "monty", "something");
     private static MysqlDriver driver = new MysqlDriver("localhost", 3306, "root", "apex");
     
     public void importFile(String file, String dir) throws FileNotFoundException, ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException
@@ -61,7 +66,6 @@ public class SqlImporter
         BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(100);
         ThreadPoolExecutor pool = new ThreadPoolExecutor(2, 100, 30, TimeUnit.SECONDS, queue);
 
-        int count = 0;
         if (!dir.endsWith("/"))
             dir += "/";
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(dir + file)));
@@ -78,15 +82,10 @@ public class SqlImporter
                 int docCount = 0;
                 EsaInfo ei = GetEsa.getEsa(query);
                 ConceptVector vector = new ConceptVector(ei);
-                System.out.println(query);
                 driver.insertConcept(query, vector);
                 
                 while((line = rreader.readLine()) != null && docCount < 20)
                 {
-                    if (cc % 5 == 0)
-                    {
-                        System.out.println(new Date().toString() + "\t" + cc + " docs finished.");
-                    }
                     String title = rreader.readLine();
                     String gsnippet = rreader.readLine();
                     String url = rreader.readLine();
@@ -105,32 +104,39 @@ public class SqlImporter
                             String sentence = s.getString();
                             while (pool.getQueue().size() > 10)
                             {
-                                Thread.sleep(30);
+                                try
+                                {
+                                    Thread.sleep(30);
+                                } catch (InterruptedException e)
+                                {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
                             }
                             // System.out.println("a");
-                            pool.execute(new ConceptFetcher(sentence));
+                            pool.execute(new ConceptFetcher(url, sentence));
                         }
                         driver.insertPage(url, page);
                         driver.insertRecord(query, title, url, gsnippet, i % 5 != 0/*training or test 1:4*/);
                         docCount++;
-                        cc++;
+                        if (++cc % 5 == 0)
+                        {
+                            System.out.println(new Date().toString() + "\t" + cc + " docs finished.");
+                        }
                     }
                 }
             }
         } catch (IOException e)
         {
             e.printStackTrace();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        
-        System.out.println(count);
+        } 
     }
     
     public static void main(String[] args) throws FileNotFoundException, ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException
     {
         SqlImporter importer = new SqlImporter();
+        Translate.setHttpReferrer("www.apexlab.org");
         importer.importFile("query", "query.data");
+        
     }
 }

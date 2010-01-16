@@ -21,6 +21,7 @@ public class MysqlDriver
     {
         MysqlDriver driver = new MysqlDriver("localhost", 3306, "root", "apex");
         driver.connect();
+        driver.createAllTable();
 //        driver.dropTable();
 //        driver.createTable();
 //        driver.clear();
@@ -29,7 +30,6 @@ public class MysqlDriver
 //        driver.insertRecord("3", "2", "2", "4", "5", "6");
 //        driver.insertRecord("5", "2", "7", "4", null, "6");
 //        driver.deleteRecord("1", "3");dropTable();
-        driver.createAllTable();
 //        driver.deleteQuery("1");
 //        Set<String> querySet = driver.getQuerySet();
 //        for (String s : querySet)
@@ -44,6 +44,11 @@ public class MysqlDriver
         
 //        Set<String> qset = driver.getQuerycreateTableSet();
 //        System.out.println(qset.size());
+        for(String translate : driver.getTranslation("http://www.taxi.com/").values())
+        {
+            System.out.println(translate);
+        }
+          
     }
     private String connectionToken;
     private Statement statement;
@@ -51,7 +56,7 @@ public class MysqlDriver
     
     public MysqlDriver(String host, int port, String username, String password)
     {
-        connectionToken = String.format("jdbc:mysql://%s:%d/snippet1?user=%s&password=%s", host, port, username, password);
+        connectionToken = String.format("jdbc:mysql://%s:%d/snippet1?user=%s&password=%s&useUnicode=true&characterEncoding=UTF8", host, port, username, password);
     }
 
     public void clear()
@@ -126,17 +131,25 @@ public class MysqlDriver
         {
             e.printStackTrace();
         }
+        
+        try
+        {
+            createTranslationTable();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
     
     private void createConceptTable() throws SQLException
     {
-        String query = "create table concept" +
-        "(id int not null auto_increment," +
-        "text varchar(500) not null, " +
-        "concept_string varchar(500), " +
+        String query = "create table concept " +
+        "(text varchar(280) not null, " +
+        "concept_string varchar(200), " +
         "concept_id int not null, " +
         "concept_weight double not null, " +
-        "primary key(id));";
+        "primary key(text, concept_id));";
         statement.executeUpdate(query);
     }
     
@@ -203,6 +216,16 @@ public class MysqlDriver
         "primary key(id));";
         statement.executeUpdate(query);
     }
+
+    private void createTranslationTable() throws SQLException
+    {
+        String query = "create table translation " +
+        "(url varchar(500) not null, " +
+        "sentence varchar(280) not null, " +
+        "translation varchar(1000) charset utf8 not null, " +
+        "primary key(url, sentence));";
+        statement.executeUpdate(query);
+    }
     
     public void dropTable()
     {
@@ -264,7 +287,25 @@ public class MysqlDriver
             return "";
         }
     }
-    
+
+    public Map<String, String> getTranslation(String url)
+    {
+        Map<String, String> toRet = new HashMap<String, String>();
+        try
+        {
+            String commit = String.format("select * from translation where url = '%s'", convert(url));
+            ResultSet rs = statement.executeQuery(commit);
+            while (rs.next())
+            {
+                toRet.put(rs.getString("sentence"), rs.getString("translation"));
+            }
+            
+        } catch (SQLException e)
+        {
+        }
+        return toRet;
+    }
+  
     public Set<String> getQuerySet(boolean isTraining)
     {
         Set<String> querySet = new HashSet<String>();
@@ -421,8 +462,6 @@ public class MysqlDriver
                 statement.executeUpdate(commit);
             } catch (SQLException e)
             {
-                e.printStackTrace();
-                return false;
             }
         }
         return true;
@@ -532,6 +571,21 @@ public class MysqlDriver
     public boolean insertTrainingRecord(String query, String title, String url, String gsnippet)
     {
         return insertRecord(query, title, url, gsnippet, true);
+    }
+    
+    public boolean insertTranslation(String url, String sentence, String translation)
+    {
+        String commit = String.format("insert into translation (url, sentence, translation) values ('%s', '%s', '%s');", 
+                convert(url), convert(sentence), convert(translation));
+        try
+        {
+            statement.executeUpdate(commit);
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
     
 }
