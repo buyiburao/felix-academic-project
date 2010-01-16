@@ -38,7 +38,10 @@ public class DefaulDocumentTokenizer extends DocumentTokenizer
                 start = current + 1;
             }
         }
-        return sentences;
+        
+        // filter length less than 5 and more thatn 249
+        SentenceFilter filter = new LengthSentenceFilter();
+        return filter.filter(sentences);
     }
     
     public static void main(String[] args)

@@ -51,7 +51,7 @@ public class MysqlDriver
     
     public MysqlDriver(String host, int port, String username, String password)
     {
-        connectionToken = String.format("jdbc:mysql://%s:%d/snippet?user=%s&password=%s", host, port, username, password);
+        connectionToken = String.format("jdbc:mysql://%s:%d/snippet1?user=%s&password=%s", host, port, username, password);
     }
 
     public void clear()
@@ -130,7 +130,7 @@ public class MysqlDriver
     
     private void createConceptTable() throws SQLException
     {
-        String query = "create table concept1" +
+        String query = "create table concept" +
         "(id int not null auto_increment," +
         "text varchar(500) not null, " +
         "concept_string varchar(500), " +
@@ -228,7 +228,7 @@ public class MysqlDriver
     public ConceptVector getConceptVector(String text)
     {
         List<Concept> concepts = new ArrayList<Concept>();
-        String commit = String.format("select * from concept1 where sentence = '%s'"
+        String commit = String.format("select * from concept where sentence = '%s'"
                 , convert(text));
         ResultSet set = null;
         try
@@ -410,7 +410,7 @@ public class MysqlDriver
     
     public boolean insertConcept(String text, ConceptVector vector)
     {
-        String format = "insert into concept1 (text, concept_string, concept_id, concept_weight) " +
+        String format = "insert into concept (text, concept_string, concept_id, concept_weight) " +
         		"values ('%s', '%s', %d, %f)";
         
         for(Concept concept : vector.getVectorMap().values())

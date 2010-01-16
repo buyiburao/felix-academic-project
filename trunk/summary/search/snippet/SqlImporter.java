@@ -83,7 +83,7 @@ public class SqlImporter
                 
                 while((line = rreader.readLine()) != null && docCount < 20)
                 {
-                    if (++cc % 5 == 0)
+                    if (cc % 5 == 0)
                     {
                         System.out.println(new Date().toString() + "\t" + cc + " docs finished.");
                     }
@@ -95,9 +95,11 @@ public class SqlImporter
                     page = page.replaceAll("&([a-zA-Z]+|#[0-9]+);", "").replaceAll("\\s+", " ");
                     if (page.length() > 249)
                     {
-                        driver.insertRecord(query, title, url, gsnippet, i % 5 != 0/*training or test 1:4*/);
-                        driver.insertPage(url, page);
                         Document doc = new Document(page);
+                        if (doc.getSentences().size() < 10)
+                        {
+                            continue;
+                        }
                         for(Sentence s : doc.getSentences())
                         {
                             String sentence = s.getString();
@@ -108,7 +110,10 @@ public class SqlImporter
                             // System.out.println("a");
                             pool.execute(new ConceptFetcher(sentence));
                         }
+                        driver.insertPage(url, page);
+                        driver.insertRecord(query, title, url, gsnippet, i % 5 != 0/*training or test 1:4*/);
                         docCount++;
+                        cc++;
                     }
                 }
             }
