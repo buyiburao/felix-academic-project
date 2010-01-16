@@ -58,6 +58,12 @@ public class MysqlDriver
     {
         connectionToken = String.format("jdbc:mysql://%s:%d/snippet1?user=%s&password=%s&useUnicode=true&characterEncoding=UTF8", host, port, username, password);
     }
+    
+    public MysqlDriver()
+    {
+        this("localhost", 3306, "snippet", "working");
+    }
+    
 
     public void clear()
     {
@@ -251,7 +257,7 @@ public class MysqlDriver
     public ConceptVector getConceptVector(String text)
     {
         List<Concept> concepts = new ArrayList<Concept>();
-        String commit = String.format("select * from concept where sentence = '%s'"
+        String commit = String.format("select * from concept where text = '%s'"
                 , convert(text));
         ResultSet set = null;
         try

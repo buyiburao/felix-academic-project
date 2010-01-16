@@ -48,7 +48,8 @@ public class ConceptVector
         double score = 0;
         for (int id : this.vectorMap.keySet())
         {
-            score += vectorMap.get(id).getWeight() * other.vectorMap.get(id).getWeight();
+            double otherWeight = other.vectorMap.containsKey(id) ? other.vectorMap.get(id).getWeight() : 0.0;
+            score += vectorMap.get(id).getWeight() * otherWeight;
         }
         return score;
     }
