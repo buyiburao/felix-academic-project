@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class MysqlDriver
@@ -273,38 +275,33 @@ public class MysqlDriver
         return true;
     }
     
-    public List<List<Integer>> getTest(String query, String url)
+    public Map<String, Double> getTraining(String query, String url)
     {
-        List<List<Integer>> toRet = new ArrayList<List<Integer>>();
-        String commit = String.format("select * from testing where query = '%s' and url = '%s'", convert(query), convert(url));
-        ResultSet set = null;
-        try
-        {
-            set = statement.executeQuery(commit);
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
+        Map<String, Double> toRet = new HashMap<String, Double>();
         
-        int count = 0;
+        Map<String, List<Integer>> data = new HashMap<String, List<Integer>>();
+        
+        String commit = String.format("select * from training where query = '%s' and url = '%s'",
+                convert(query), convert(url));
+        
         try
         {
+            ResultSet set = statement.executeQuery(commit);
             while(set.next())
             {
-                int[] add = new int[9];
-                for (int i = 0; i < 9; i++)
+                String sentence = set.getString("sentence");
+                List<Integer> list = null;
+                if(data.containsKey(sentence))
                 {
-                    try
-                    {
-                        add[i] = set.getInt(i + 3);
-                    } catch (SQLException e)
-                    {
-                        e.printStackTrace();
-                    }
+                    list = data.get(sentence);
                 }
-                ret[count++] = add;
+                else
+                {
+                    list = new ArrayList<Integer>();
+                    data.put(sentence, list);
+                }
+                
+                list.add(set.getInt("rank"));
             }
             
         } catch (SQLException e)
@@ -312,20 +309,20 @@ public class MysqlDriver
             e.printStackTrace();
         }
         
-        int[][] temp = new int[count][];
-        for (int i = 0; i < count; i++)
+        SentenceRankScorer scorer = new SimpleRankScorer();
+        for(String sentence: data.keySet())
         {
-            temp[i] = ret[i];
+            toRet.put(sentence, scorer.getScore(data.get(sentence)));
         }
-        return temp;
+        return toRet;
     }
 
-    public int[] getRank(String query, String url, String sentence, String user)
+    public int[] getTesting(String query, String url)
     {
         ArrayList<Integer> ret = new ArrayList<Integer>();
         String commit = String.format("select * from training where query = '%s' " +
-        		"and url = '%s' and sentence = '%s' and user = '%s'",
-        		convert(query), convert(url), convert(sentence), convert(user));
+        		"and url = '%s';",
+        		convert(query), convert(url));
         ResultSet set = null;
         try
         {

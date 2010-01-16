@@ -50,7 +50,8 @@ public class SqlImporter
             }
         }
     }
-//    private MysqlDriver driver = new MysqlDriver("192.168.3.19", 3306, "monty", "something");
+
+    //    private MysqlDriver driver = new MysqlDriver("192.168.3.19", 3306, "monty", "something");
     private static MysqlDriver driver = new MysqlDriver("localhost", 3306, "root", "apex");
     
     public void importFile(String file, String dir) throws FileNotFoundException, ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException
@@ -78,6 +79,13 @@ public class SqlImporter
                 @SuppressWarnings("unused")
                 String line = null;
                 int docCount = 0;
+                EsaInfo ei = GetEsa.getEsa(query);
+                System.out.println(query);
+                for(String concept : ei.ccpts)
+                {
+                    driver.insertConcept(query, concept);
+                    System.out.println(concept);
+                }
                 while((line = rreader.readLine()) != null && docCount < 20)
                 {
                     if (++cc % 5 == 0)
