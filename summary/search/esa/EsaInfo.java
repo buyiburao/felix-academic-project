@@ -4,6 +4,7 @@ public class EsaInfo
 {
     public String query;
     public int hits;
-    public int[] ids;
-    public String[] ccpts;
+    public Integer[] ids;
+    public String[] concepts;
+    public Double[] weights;
 }

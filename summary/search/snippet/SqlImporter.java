@@ -12,6 +12,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import search.esa.ConceptVector;
 import search.esa.EsaInfo;
 import search.esa.GetEsa;
 import search.object.Document;
@@ -30,24 +31,20 @@ public class SqlImporter
         
         public void run()
         {
-            EsaInfo ei = GetEsa.getEsa(sentence);
-            // Thread.sleep(30);
+            EsaInfo ei;
             if (sentence.length() > 500 || sentence.trim().length() < 1)
                 return;
-            for (String str : ei.ccpts)
+            try
             {
-                if (str == null)
-                    continue;
-                try
-                {
-                    // System.out.println(sentence + "\t" + str);
-                    driver.insertConcept(sentence, str);
-                } catch (Exception e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                ei = GetEsa.getEsa(sentence);
+                ConceptVector vector = new ConceptVector(ei);
+                driver.insertConcept(sentence, vector);
+            } catch (Exception e1)
+            {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
             }
+            // Thread.sleep(30);
         }
     }
 
@@ -80,12 +77,10 @@ public class SqlImporter
                 String line = null;
                 int docCount = 0;
                 EsaInfo ei = GetEsa.getEsa(query);
+                ConceptVector vector = new ConceptVector(ei);
                 System.out.println(query);
-                for(String concept : ei.ccpts)
-                {
-                    driver.insertConcept(query, concept);
-                    System.out.println(concept);
-                }
+                driver.insertConcept(query, vector);
+                
                 while((line = rreader.readLine()) != null && docCount < 20)
                 {
                     if (++cc % 5 == 0)

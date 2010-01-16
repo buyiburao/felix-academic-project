@@ -12,13 +12,51 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import search.esa.Concept;
+import search.esa.ConceptVector;
+
 public class MysqlDriver
 {
+    public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException
+    {
+        MysqlDriver driver = new MysqlDriver("localhost", 3306, "root", "apex");
+        driver.connect();
+//        driver.dropTable();
+//        driver.createTable();
+//        driver.clear();
+//        driver.insertRecord("\"1", "2", "2", "4", "5", "6");
+//        driver.insertRecord("2", "2", "2", "4", "5", "6");
+//        driver.insertRecord("3", "2", "2", "4", "5", "6");
+//        driver.insertRecord("5", "2", "7", "4", null, "6");
+//        driver.deleteRecord("1", "3");dropTable();
+        driver.createAllTable();
+//        driver.deleteQuery("1");
+//        Set<String> querySet = driver.getQuerySet();
+//        for (String s : querySet)
+//        {
+//            System.out.println(s);
+//        }
+        
+//        for(String concept :driver.getConcept("What AR stands for?"))
+//        {
+//            System.out.println(concept);
+//        }
+        
+//        Set<String> qset = driver.getQuerycreateTableSet();
+//        System.out.println(qset.size());
+    }
     private String connectionToken;
     private Statement statement;
+    private Connection connection;
+    
     public MysqlDriver(String host, int port, String username, String password)
     {
         connectionToken = String.format("jdbc:mysql://%s:%d/snippet?user=%s&password=%s", host, port, username, password);
+    }
+
+    public void clear()
+    {
+        
     }
     
     public void connect() throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException
@@ -26,84 +64,13 @@ public class MysqlDriver
         Class.forName("com.mysql.jdbc.Driver");
         Class.forName("com.mysql.jdbc.Driver").newInstance();
         
-        Connection con = DriverManager.getConnection(connectionToken);
-        statement = con.createStatement();
+        connection = DriverManager.getConnection(connectionToken);
+        statement = connection.createStatement();
     }
     
-
-
-    private void createTrainingSnippetTable() throws SQLException
+    private String convert(String str)
     {
-        String query = "create table training_snippet" +
-        "(query varchar(100) not null, " +
-        "title varchar(200), " +
-        "url varchar(300) not null," +
-        "gsnippet varchar(1000), " +
-        "primary key(query,url));";
-        statement.executeUpdate(query);
-    }
-    
-    private void createTestSnippetTable() throws SQLException
-    {
-        String query = "create table test_snippet " +
-        "(query varchar(100) not null, " +
-        "title varchar(200), " +
-        "url varchar(300) not null," +
-        "gsnippet varchar(1000), " +
-        "primary key(query,url));";
-        statement.executeUpdate(query);
-    }
-    
-    private void createPageTable() throws SQLException
-    {
-        String query = "create table page " +
-        "(url varchar(1000) not null, " +
-        "pagecontent varchar(40000), " +
-        "primary key(url));";
-        statement.executeUpdate(query);
-    }
-    
-    private void createConceptTable() throws SQLException
-    {
-        String query = "create table concept" +
-        "(id int not null auto_increment," +
-        "sentence varchar(500) not null, " +
-        "concept varchar(500), " +
-        "primary key(id));";
-        statement.executeUpdate(query);
-    }
-    
-    private void createTrainingTable() throws SQLException
-    {
-        String query = "create table training " +
-        "(id int not null auto_increment," +
-        "query varchar(1000) not null, " +
-        "url varchar(1000) not null, " +
-        "sentence varchar(300) not null, " +
-        "user varchar(30) not null, " +
-        "rank int not null, " +
-        "primary key(id));";
-        statement.executeUpdate(query);
-    }
-    
-    private void createTestTable() throws SQLException
-    {
-        String query = "create table testing " +
-        "(id int not null auto_increment," +
-        "query varchar(1000) not null, " +
-        "url varchar(1000) not null, " +
-        "judege_base1_1 int not null, " +
-        "judege_base1_2 int not null, " +
-        "judege_base1_3 int not null, " +
-        "judege_base2_1 int not null, " +
-        "judege_base2_2 int not null, " +
-        "judege_base2_3 int not null, " +
-        "judege_our_1 int not null, " +
-        "judege_our_2 int not null, " +
-        "judege_our_3 int not null, " +
-        "user varchar(30) not null, " +
-        "primary key(id));";
-        statement.executeUpdate(query);
+        return str == null ? "" : str.replaceAll("'", "''");
     }
     
     public void createAllTable()
@@ -160,7 +127,83 @@ public class MysqlDriver
             e.printStackTrace();
         }
     }
+    
+    private void createConceptTable() throws SQLException
+    {
+        String query = "create table concept1" +
+        "(id int not null auto_increment," +
+        "text varchar(500) not null, " +
+        "concept_string varchar(500), " +
+        "concept_id int not null, " +
+        "concept_weight double not null, " +
+        "primary key(id));";
+        statement.executeUpdate(query);
+    }
+    
+    private void createPageTable() throws SQLException
+    {
+        String query = "create table page " +
+        "(url varchar(1000) not null, " +
+        "pagecontent varchar(40000), " +
+        "primary key(url));";
+        statement.executeUpdate(query);
+    }
+    
+    private void createTestSnippetTable() throws SQLException
+    {
+        String query = "create table test_snippet " +
+        "(query varchar(100) not null, " +
+        "title varchar(200), " +
+        "url varchar(300) not null," +
+        "gsnippet varchar(1000), " +
+        "primary key(query,url));";
+        statement.executeUpdate(query);
+    }
 
+    private void createTestTable() throws SQLException
+    {
+        String query = "create table testing " +
+        "(id int not null auto_increment," +
+        "query varchar(1000) not null, " +
+        "url varchar(1000) not null, " +
+        "judege_base1_1 int not null, " +
+        "judege_base1_2 int not null, " +
+        "judege_base1_3 int not null, " +
+        "judege_base2_1 int not null, " +
+        "judege_base2_2 int not null, " +
+        "judege_base2_3 int not null, " +
+        "judege_our_1 int not null, " +
+        "judege_our_2 int not null, " +
+        "judege_our_3 int not null, " +
+        "user varchar(30) not null, " +
+        "primary key(id));";
+        statement.executeUpdate(query);
+    }
+    
+    private void createTrainingSnippetTable() throws SQLException
+    {
+        String query = "create table training_snippet" +
+        "(query varchar(100) not null, " +
+        "title varchar(200), " +
+        "url varchar(300) not null," +
+        "gsnippet varchar(1000), " +
+        "primary key(query,url));";
+        statement.executeUpdate(query);
+    }
+    
+    private void createTrainingTable() throws SQLException
+    {
+        String query = "create table training " +
+        "(id int not null auto_increment," +
+        "query varchar(1000) not null, " +
+        "url varchar(1000) not null, " +
+        "sentence varchar(300) not null, " +
+        "user varchar(30) not null, " +
+        "rank int not null, " +
+        "primary key(id));";
+        statement.executeUpdate(query);
+    }
+    
     public void dropTable()
     {
 //        String query = "drop table snippet_record;";
@@ -168,6 +211,221 @@ public class MysqlDriver
 //        
 //        query = "drop table page;";
 //        statement.executeUpdate(query    
+    }
+    
+    public void disconnect()
+    {
+        try
+        {
+            connection.close();
+        } catch (SQLException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    public ConceptVector getConceptVector(String text)
+    {
+        List<Concept> concepts = new ArrayList<Concept>();
+        String commit = String.format("select * from concept1 where sentence = '%s'"
+                , convert(text));
+        ResultSet set = null;
+        try
+        {
+            set = statement.executeQuery(commit);
+            while(set.next())
+            {
+                Concept concept = new Concept(set.getInt("concept_id"), set.getString("concept_string"), set.getDouble("concept_weight"));
+                concepts.add(concept);
+            }
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+        
+        return new ConceptVector(concepts);
+    }
+    
+    public String getPage(String url)
+    {
+        String commit = String.format("select pagecontent from page where url = '%s'", url);
+        try
+        {
+            ResultSet set = statement.executeQuery(commit);
+            set.next();
+            return set.getString("pagecontent");
+        } 
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return "";
+        }
+    }
+    
+    public Set<String> getQuerySet(boolean isTraining)
+    {
+        Set<String> querySet = new HashSet<String>();
+        String table = isTraining ? "training" : "test";
+        try
+        {
+            String commit = String.format("select distinct s.query from %s_snippet s", table);
+            ResultSet rs = statement.executeQuery(commit);
+            while (rs.next())
+            {
+                querySet.add(rs.getString(1));
+            }
+            
+            return querySet;
+        } catch (SQLException e)
+        {
+            return new HashSet<String>();
+        }
+    }
+    
+    public List<Record> getRecord(String query, boolean isTraining)
+    {
+        List<Record> toRet = new ArrayList<Record>();
+        String table = isTraining ? "training" : "test";
+        try
+        {
+            String commit = String.format("select * from %s_snippet where query = '%s'", table, convert(query));
+            ResultSet rs = statement.executeQuery(commit);
+            while(rs.next())
+            {
+                Record r = new Record();
+                r.setQuery(query);
+                r.setTitle(rs.getString("title"));
+                r.setUrl(rs.getString("url"));
+                r.setGsnippet(rs.getString("gsnippet"));
+                toRet.add(r);
+            }
+            return toRet;
+        }
+        catch (SQLException e)
+        {
+            return toRet;
+        }
+    }
+
+    public int[] getTesting(String query, String url)
+    {
+        ArrayList<Integer> ret = new ArrayList<Integer>();
+        String commit = String.format("select * from training where query = '%s' " +
+        		"and url = '%s';",
+        		convert(query), convert(url));
+        ResultSet set = null;
+        try
+        {
+            set = statement.executeQuery(commit);
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            return new int[0];
+        }
+        
+        try
+        {
+            while(set.next())
+            {
+                int rank = 0;
+                rank = set.getInt("rank"); 
+                ret.add(rank);
+            }
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        int[] toRet = new int[ret.size()];
+        for(int i = 0; i < ret.size(); i++)
+        {
+            toRet[i] = ret.get(i);
+        }
+        
+        return toRet;
+    }
+    
+    public Map<String, Double> getTraining(String query, String url)
+    {
+        Map<String, Double> toRet = new HashMap<String, Double>();
+        
+        Map<String, List<Integer>> data = new HashMap<String, List<Integer>>();
+        
+        String commit = String.format("select * from training where query = '%s' and url = '%s'",
+                convert(query), convert(url));
+        
+        try
+        {
+            ResultSet set = statement.executeQuery(commit);
+            while(set.next())
+            {
+                String sentence = set.getString("sentence");
+                List<Integer> list = null;
+                if(data.containsKey(sentence))
+                {
+                    list = data.get(sentence);
+                }
+                else
+                {
+                    list = new ArrayList<Integer>();
+                    data.put(sentence, list);
+                }
+                
+                list.add(set.getInt("rank"));
+            }
+            
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        
+        SentenceRankScorer scorer = new SimpleRankScorer();
+        for(String sentence: data.keySet())
+        {
+            toRet.put(sentence, scorer.getScore(data.get(sentence)));
+        }
+        return toRet;
+    }
+    
+    public boolean isTrainingLabeled(String query, String url, String user)
+    {
+        String commit = String.format("select * from training where query = '%s' and url = '%s' and user = '%s'",
+                convert(query), convert(url), convert(user));
+        
+        try
+        {
+            ResultSet set = statement.executeQuery(commit);
+            return set.next();
+            
+            
+        } catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    public boolean insertConcept(String text, ConceptVector vector)
+    {
+        String format = "insert into concept1 (text, concept_string, concept_id, concept_weight) " +
+        		"values ('%s', '%s', %d, %f)";
+        
+        for(Concept concept : vector.getVectorMap().values())
+        {
+            String commit = String.format(format, convert(text), convert(concept.getConcept()), concept.getId(), concept.getWeight());
+            try
+            {
+                statement.executeUpdate(commit);
+            } catch (SQLException e)
+            {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        return true;
     }
     
     public boolean insertPage(String url, String pagecontent)
@@ -185,52 +443,16 @@ public class MysqlDriver
         return true;
     }
     
-    public boolean insertConcept(String sentence, String concept)
+    public boolean insertRecord(String query, String title, String url, String gsnippet, boolean isTraining)
     {
-        String commit = String.format("insert into concept (sentence, concept) " + "values ('%s', '%s')",
-                convert(sentence), convert(concept));
+        String table = isTraining ? "training" : "test";
+        String commit = String.format("insert into %s_snippet (query, title, url, gsnippet) values ('%s', '%s', '%s', '%s');", 
+        		table, convert(query), convert(title),convert(url),convert(gsnippet));
         try
         {
             statement.executeUpdate(commit);
         } catch (SQLException e)
         {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-    
-    public Set<String> getConcept(String sentence)
-    {
-        Set<String> concept = new HashSet<String>();
-        String commit = String.format("select * from concept where sentence = '%s'", convert(sentence));
-        ResultSet set = null;
-        try
-        {
-            set = statement.executeQuery(commit);
-            while(set.next())
-            {
-                concept.add(set.getString("concept"));
-            }
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-        return concept;
-    }
-    
-    public boolean insertTraining(String query, String url, String sentence, String user, int rank)
-    {
-        String commit = String.format("insert into training(query, url, sentence, user, rank) values ('%s', '%s', '%s', '%s', %d)", 
-                convert(query), convert(url), convert(sentence), convert(user), rank);
-        try
-        {
-            statement.executeUpdate(commit);
-        } catch (SQLException e)
-        {
-//            e.printStackTrace();
             return false;
         }
         return true;
@@ -275,221 +497,41 @@ public class MysqlDriver
         return true;
     }
     
-    public Map<String, Double> getTraining(String query, String url)
-    {
-        Map<String, Double> toRet = new HashMap<String, Double>();
-        
-        Map<String, List<Integer>> data = new HashMap<String, List<Integer>>();
-        
-        String commit = String.format("select * from training where query = '%s' and url = '%s'",
-                convert(query), convert(url));
-        
-        try
-        {
-            ResultSet set = statement.executeQuery(commit);
-            while(set.next())
-            {
-                String sentence = set.getString("sentence");
-                List<Integer> list = null;
-                if(data.containsKey(sentence))
-                {
-                    list = data.get(sentence);
-                }
-                else
-                {
-                    list = new ArrayList<Integer>();
-                    data.put(sentence, list);
-                }
-                
-                list.add(set.getInt("rank"));
-            }
-            
-        } catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
-        
-        SentenceRankScorer scorer = new SimpleRankScorer();
-        for(String sentence: data.keySet())
-        {
-            toRet.put(sentence, scorer.getScore(data.get(sentence)));
-        }
-        return toRet;
-    }
-
-    public int[] getTesting(String query, String url)
-    {
-        ArrayList<Integer> ret = new ArrayList<Integer>();
-        String commit = String.format("select * from training where query = '%s' " +
-        		"and url = '%s';",
-        		convert(query), convert(url));
-        ResultSet set = null;
-        try
-        {
-            set = statement.executeQuery(commit);
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-            return new int[0];
-        }
-        
-        try
-        {
-            while(set.next())
-            {
-                int rank = 0;
-                rank = set.getInt("rank"); 
-                ret.add(rank);
-            }
-        } catch (SQLException e)
-        {
-            e.printStackTrace();
-        }
-        int[] toRet = new int[ret.size()];
-        for(int i = 0; i < ret.size(); i++)
-        {
-            toRet[i] = ret.get(i);
-        }
-        
-        return toRet;
-    }
-    
-    public String getPage(String url)
-    {
-        String commit = String.format("select pagecontent from page where url = '%s'", url);
-        try
-        {
-            ResultSet set = statement.executeQuery(commit);
-            set.next();
-            return set.getString("pagecontent");
-        } 
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-            return "";
-        }
-    }
-    
-    private String convert(String str)
-    {
-        return str == null ? "" : str.replaceAll("'", "''");
-    }
-    
-    public boolean insertRecord(String query, String title, String url, String gsnippet, boolean isTraining)
-    {
-        String table = isTraining ? "training" : "test";
-        String commit = String.format("insert into %s_snippet (query, title, url, gsnippet) values ('%s', '%s', '%s', '%s');", 
-        		table, convert(query), convert(title),convert(url),convert(gsnippet));
-        try
-        {
-            statement.executeUpdate(commit);
-        } catch (SQLException e)
-        {
-            return false;
-        }
-        return true;
-    }
-    
-    public boolean insertTrainingRecord(String query, String title, String url, String gsnippet)
-    {
-        return insertRecord(query, title, url, gsnippet, true);
-    }
-    
-    public boolean insertTestRecord(String query, String title, String url, String gsnippet)
-    {
-        return insertRecord(query, title, url, gsnippet, false);
-    }
-    
-    public boolean insertTrainingRecord(Record record) throws SQLException
-    {
-        return insertTrainingRecord(convert(record.getQuery()), convert(record.getTitle()), 
-                            convert(record.getUrl()), convert(record.getGsnippet()));
-    }
-    
     public boolean insertTestRecord(Record record) throws SQLException
     {
         return insertTestRecord(convert(record.getQuery()), convert(record.getTitle()), 
                             convert(record.getUrl()), convert(record.getGsnippet()));
     }
 
-    public List<Record> getRecord(String query, boolean isTraining)
+    public boolean insertTestRecord(String query, String title, String url, String gsnippet)
     {
-        List<Record> toRet = new ArrayList<Record>();
-        String table = isTraining ? "training" : "test";
-        try
-        {
-            String commit = String.format("select * from %s_snippet where query = '%s'", table, convert(query));
-            ResultSet rs = statement.executeQuery(commit);
-            while(rs.next())
-            {
-                Record r = new Record();
-                r.setQuery(query);
-                r.setTitle(rs.getString("title"));
-                r.setUrl(rs.getString("url"));
-                r.setGsnippet(rs.getString("gsnippet"));
-                toRet.add(r);
-            }
-            return toRet;
-        }
-        catch (SQLException e)
-        {
-            return toRet;
-        }
+        return insertRecord(query, title, url, gsnippet, false);
     }
  
-    public Set<String> getQuerySet(boolean isTraining)
+    public boolean insertTraining(String query, String url, String sentence, String user, int rank)
     {
-        Set<String> querySet = new HashSet<String>();
-        String table = isTraining ? "training" : "test";
+        String commit = String.format("insert into training(query, url, sentence, user, rank) values ('%s', '%s', '%s', '%s', %d)", 
+                convert(query), convert(url), convert(sentence), convert(user), rank);
         try
         {
-            String commit = String.format("select distinct s.query from %s_snippet s", table);
-            ResultSet rs = statement.executeQuery(commit);
-            while (rs.next())
-            {
-                querySet.add(rs.getString(1));
-            }
-            
-            return querySet;
+            statement.executeUpdate(commit);
         } catch (SQLException e)
         {
-            return new HashSet<String>();
+//            e.printStackTrace();
+            return false;
         }
+        return true;
     }
 
-    public void clear()
+    public boolean insertTrainingRecord(Record record) throws SQLException
     {
-        
+        return insertTrainingRecord(convert(record.getQuery()), convert(record.getTitle()), 
+                            convert(record.getUrl()), convert(record.getGsnippet()));
     }
     
-    public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException
+    public boolean insertTrainingRecord(String query, String title, String url, String gsnippet)
     {
-        MysqlDriver driver = new MysqlDriver("localhost", 3306, "root", "apex");
-        driver.connect();
-//        driver.dropTable();
-//        driver.createTable();
-//        driver.clear();
-//        driver.insertRecord("\"1", "2", "2", "4", "5", "6");
-//        driver.insertRecord("2", "2", "2", "4", "5", "6");
-//        driver.insertRecord("3", "2", "2", "4", "5", "6");
-//        driver.insertRecord("5", "2", "7", "4", null, "6");
-//        driver.deleteRecord("1", "3");dropTable();
-        driver.createAllTable();
-//        driver.deleteQuery("1");
-//        Set<String> querySet = driver.getQuerySet();
-//        for (String s : querySet)
-//        {
-//            System.out.println(s);
-//        }
-        
-//        for(String concept :driver.getConcept("What AR stands for?"))
-//        {
-//            System.out.println(concept);
-//        }
-        
-//        Set<String> qset = driver.getQuerycreateTableSet();
-//        System.out.println(qset.size());
+        return insertRecord(query, title, url, gsnippet, true);
     }
     
 }
