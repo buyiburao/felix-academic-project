@@ -47,6 +47,7 @@ public class LabelManager {
 
                         Map<String, String> translation = driver.getTranslation(url);
                         ret = new PageInfo(record, list, translation);
+
                         break;
                     }
                 }
@@ -59,7 +60,8 @@ public class LabelManager {
     }
 
     private static MysqlDriver getMysqlDriver() {
-        return new MysqlDriver(HOST, 3306, "snippet", "working");
+        //return new MysqlDriver(HOST, 3306, "snippet", "working");
+        return new MysqlDriver();
     }
 
     public static void storeLabel(String query, String url, String sentence,
