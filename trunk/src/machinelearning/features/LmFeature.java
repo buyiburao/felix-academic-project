@@ -22,7 +22,7 @@ public class LmFeature extends QueryBiasedSentenceFeatureExtractor
         double u = 0.1;
         for (String t : query.getTermSet())
         {
-            double pwc = dict.lookup(t);
+            double pwc = dict.lookup(t) / 1.0 / DOC_NUM;
             score += query.getOccur(t) * Math.log((sentence.getOccur(t) + u * pwc)/ (sentence.getLength() + u));
         }
         return score;
