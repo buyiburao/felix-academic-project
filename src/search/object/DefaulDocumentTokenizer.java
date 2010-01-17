@@ -34,6 +34,8 @@ public class DefaulDocumentTokenizer extends DocumentTokenizer
             {
                 Sentence sentence = new Sentence(string.substring(start, current + 1).trim());
                 sentence.setDoc(doc);
+                if (current != string.length() - 1 && string.charAt(current) == '?')
+                	sentence.setQuestion();
                 sentences.add(sentence);
                 start = current + 1;
             }
@@ -62,23 +64,24 @@ public class DefaulDocumentTokenizer extends DocumentTokenizer
         		"people to seek medical help. A recently proposed treatment consists of imagery " +
         		"rehearsal.[2] This approach appears to reduce the effects of nightmares " +
         		"and other symptoms in acute stress disorder and post-traumatic stress " +
-        		"disorder.[3]";
+        		"disorder.[3] for test use, is this an article in wikipedia? I don't know.";
         
-//        Document doc = new Document(test);
-//        List<Sentence> sentences = doc.getSentences();
-//        for (Sentence s : sentences)
-//        {
-//            System.out.println(s.getString());
-////            for(Term t : s.getTerms())
-////            {
-////                System.out.println(t.getString() + "\t" + t.getNormalized());
-////            }
-//        }
+        Document doc = new Document(test);
+        List<Sentence> sentences = doc.getSentences();
+        for (Sentence s : sentences)
+        {
+            System.out.println(s.getString());
+            System.out.println(s.isQuestion());
+//            for(Term t : s.getTerms())
+//            {
+//                System.out.println(t.getString() + "\t" + t.getNormalized());
+//            }
+        }
         
-//        System.out.println(doc.getOccur("or"));
-//        System.out.println(doc.getSentences().get(0).getOccur("also"));
-//        System.out.println(doc.getSentences().get(0).getOccur("bad"));
-//        System.out.println(doc.getSentences().get(0).getOccur("dream"));
-//        System.out.println(doc.getSentences().get(0).getOccur("a"));
+        System.out.println(doc.getOccur("or"));
+        System.out.println(doc.getSentences().get(0).getOccur("also"));
+        System.out.println(doc.getSentences().get(0).getOccur("bad"));
+        System.out.println(doc.getSentences().get(0).getOccur("dream"));
+        System.out.println(doc.getSentences().get(0).getOccur("a"));
     }
 }

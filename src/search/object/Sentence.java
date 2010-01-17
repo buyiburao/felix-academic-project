@@ -8,6 +8,7 @@ public class Sentence extends Token
     TermOccurence occurence = null;
     List<Term> terms;
     Document doc;
+    boolean withQuestionMark = false;
     
     public Sentence(String string)
     {
@@ -66,6 +67,11 @@ public class Sentence extends Token
         readyOccurence();
         return occurence.getDistinctNum();
     }
-    
+    public boolean isQuestion(){
+    	return withQuestionMark;
+    }
+    public void setQuestion(){
+    	withQuestionMark = true;
+    }
     
 }
