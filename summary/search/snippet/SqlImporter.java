@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -28,10 +30,12 @@ public class SqlImporter
     {
         private String sentence;
         private String url;
-        public ConceptFetcher(String url, String sentence)
+//        private Map<String, String> translationMap;
+        public ConceptFetcher(String url, String sentence/*, Map<String, String> translationMap*/)
         {
             this.sentence = sentence;
             this.url = url;
+//            this.translationMap = translationMap;
         }
         
         public void run()
@@ -40,9 +44,12 @@ public class SqlImporter
             {
                 EsaInfo ei = GetEsa.getEsa(sentence);
                 ConceptVector vector = new ConceptVector(ei);
-                driver.insertConcept(sentence, vector);
+//                ConceptVector vector = driver2.getConceptVector(sentence);
+                    driver.insertConcept(sentence, vector);
                 String translation = Translate.execute(sentence, Language.ENGLISH, Language.CHINESE_SIMPLIFIED);
-                driver.insertTranslation(url, sentence, translation);
+//                String translation = translationMap.get(sentence);
+//                if (translationMap != null)
+                    driver.insertTranslation(url, sentence, translation);
             } catch (Exception e1)
             {
                 // TODO Auto-generated catch block
@@ -53,13 +60,15 @@ public class SqlImporter
         }
     }
 
-    // private MysqlDriver driver = new MysqlDriver("192.168.3.19", 3306, "monty", "something");
-    private static MysqlDriver driver = new MysqlDriver("localhost", 3306, "root", "apex");
+     private static MysqlDriver driver = new MysqlDriver("192.168.3.19", 3306, "monty", "something");
+//    private static MysqlDriver driver2 = new MysqlDriver();
     
     public void importFile(String file, String dir) throws FileNotFoundException, ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException
     {
 //        Translate.setHttpReferrer("www.sina.com.cn");
         driver.connect();
+//        driver2.connect();
+        driver.createAllTable();
 //        driver.createTable();
 //        driver.clear();
         
@@ -75,6 +84,7 @@ public class SqlImporter
             int cc = 0;
             for (int i = 0; (query = reader.readLine()) != null; i++)
             {
+                if (i % 5 == 0) continue;
                 System.out.println("Start query " + i + ": " + query);
                 BufferedReader rreader = new BufferedReader(new InputStreamReader(new FileInputStream(dir + i)));
                 @SuppressWarnings("unused")
@@ -82,9 +92,9 @@ public class SqlImporter
                 int docCount = 0;
                 EsaInfo ei = GetEsa.getEsa(query);
                 ConceptVector vector = new ConceptVector(ei);
-                driver.insertConcept(query, vector);
+                    driver.insertConcept(query, vector);
                 
-                while((line = rreader.readLine()) != null && docCount < 20)
+                while((line = rreader.readLine()) != null && docCount < 10)
                 {
                     String title = rreader.readLine();
                     String gsnippet = rreader.readLine();
@@ -99,9 +109,15 @@ public class SqlImporter
                         {
                             continue;
                         }
+                        
+//                        Map<String, String> transMap = driver2.getTranslation(url);
                         for(Sentence s : doc.getSentences())
                         {
-                            String sentence = s.getString();
+                            Set<String> sentenceSet = new HashSet<String>();
+                            String sentenceString = s.getString();
+                            if (sentenceSet.contains(sentenceString)) continue;
+                            sentenceSet.add(sentenceString);
+                            
                             while (pool.getQueue().size() > 10)
                             {
                                 try
@@ -114,10 +130,11 @@ public class SqlImporter
                                 }
                             }
                             // System.out.println("a");
-                            pool.execute(new ConceptFetcher(url, sentence));
+//                            pool.execute(new ConceptFetcher(url, sentenceString, transMap));
+                            pool.execute(new ConceptFetcher(url, sentenceString));
                         }
                         driver.insertPage(url, page);
-                        driver.insertRecord(query, title, url, gsnippet, i % 5 != 0/*training or test 1:4*/);
+                        driver.insertRecord(query, title, url, gsnippet, i % 5 != 0/*training or test 4:1*/);
                         docCount++;
                         if (++cc % 5 == 0)
                         {
@@ -135,7 +152,7 @@ public class SqlImporter
     public static void main(String[] args) throws FileNotFoundException, ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException
     {
         SqlImporter importer = new SqlImporter();
-        Translate.setHttpReferrer("www.apexlab.org");
+//        Translate.setHttpReferrer("www.apexlab.org");
         importer.importFile("query", "query.data");
         
     }

@@ -45,6 +45,10 @@ public class ConceptVector
     
     public double similarity(ConceptVector other)
     {
+        if (other == null)
+        {
+            return 0;
+        }
         double score = 0;
         for (int id : this.vectorMap.keySet())
         {

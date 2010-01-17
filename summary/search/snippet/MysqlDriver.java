@@ -61,7 +61,7 @@ public class MysqlDriver
     
     public MysqlDriver()
     {
-        this("localhost", 3306, "snippet", "working");
+        this("192.168.3.19", 3306, "monty", "something");
     }
     
 
@@ -272,7 +272,6 @@ public class MysqlDriver
         catch (SQLException e)
         {
             e.printStackTrace();
-            return null;
         }
         
         return new ConceptVector(concepts);
@@ -303,7 +302,19 @@ public class MysqlDriver
             ResultSet rs = statement.executeQuery(commit);
             while (rs.next())
             {
-                toRet.put(rs.getString("sentence"), rs.getString("translation"));
+                try
+                {
+                    String oString = rs.getString("sentence");
+                    String tString = rs.getString("translation");
+                    if (oString != null && tString != null)
+                    {
+                        toRet.put(oString, tString);
+                    }
+                }
+                catch (Exception e)
+                {
+                    System.out.println("Wrong getting translation!");
+                }
             }
             
         } catch (SQLException e)
@@ -588,7 +599,9 @@ public class MysqlDriver
             statement.executeUpdate(commit);
         } catch (SQLException e)
         {
-            e.printStackTrace();
+            System.out.println("url:   " + url);
+            System.out.println(sentence);
+            System.out.println(translation);
             return false;
         }
         return true;
