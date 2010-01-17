@@ -19,6 +19,7 @@
                     return;
                 }
             } catch (Exception e) {
+            	System.out.println(e);
                 response.sendError(
                         HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.toString());
             }
