@@ -27,6 +27,7 @@
                     form.method = "POST";
 
                     input = document.createElement("input");
+                    input.type = "hidden";
                     input.name = "user";
                     input.value = user;
                     form.appendChild(input);

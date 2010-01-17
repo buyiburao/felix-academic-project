@@ -58,6 +58,7 @@ public class MysqlDriver {
 
     public MysqlDriver() {
         this("192.168.3.19", 3306, "monty", "something");
+//        this("192.168.1.110", 3306, "snippet", "working");
     }
 
     public void clear() {
@@ -236,7 +237,7 @@ public class MysqlDriver {
             set.next();
             return set.getString("pagecontent");
         } catch (SQLException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return "";
         }
     }

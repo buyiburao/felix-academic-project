@@ -9,16 +9,19 @@ function submit_result() {
         form.method = "POST";
 		
         input = document.createElement("input");
+        input.type = "hidden";
         input.name = "user";
         input.value = user;
         form.appendChild(input);
 		
         input = document.createElement("input");
+        input.type = "hidden";
         input.name = "query";
         input.value = document.getElementById("query").value;
         form.appendChild(input);
 		
         input = document.createElement("input");
+        input.type = "hidden";
         input.name = "url";
         input.value = document.getElementById("url").value;
         form.appendChild(input);
@@ -28,6 +31,7 @@ function submit_result() {
             result = results[i];
 			
             input = document.createElement("input");
+            input.type = "hidden";
             input.name = "r_" + i;
             input.value = result.title;
 			
@@ -133,13 +137,13 @@ function translate(sentence, func) {
 }
 
 function decorate(sentence, query) {
-    sentence = " " + sentence + " ";
-    terms = query.split(" ");
-    for (i = 0; i < terms.length; ++i) {
-        term = terms[i];
-        reg = new RegExp(" " + term + " ", "g");
-        sentence = sentence.replace(reg, " <b>" + term + "</b> ");
-    }
+//    sentence = " " + sentence + " ";
+//    terms = query.split(" ");
+//    for (i = 0; i < terms.length; ++i) {
+//        term = terms[i];
+//        reg = new RegExp(" " + term + " ", "gm");
+//        sentence = sentence.replace(reg, " <b>" + term + "</b> ");
+//    }
     return sentence;
 }
 

@@ -17,7 +17,6 @@ import search.snippet.Record;
 
 public class LabelManager {
 
-    private static final String HOST = "192.168.3.19";
     public static final String USERNAME_COOKIE_NAME = "username";
 
     public static PageInfo findNewTrainingItem(String username)
@@ -66,16 +65,7 @@ public class LabelManager {
 
     public static void storeLabel(String query, String url, String sentence,
             String user, int rank) throws Exception {
-        MysqlDriver driver = getMysqlDriver();
-        driver.connect();
-        driver.insertTraining(query, url, sentence, user, rank);
-        driver.disconnect();
-
-        System.out.println(query);
-        System.out.println(url);
-        System.out.println(sentence);
-        System.out.println(user);
-        System.out.println(rank);
+    	new StoreThread(getMysqlDriver(), query, url, sentence, user, rank).start();
     }
 
     public static String getUserName(HttpServletRequest request) {
