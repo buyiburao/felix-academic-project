@@ -46,6 +46,7 @@ public class DefaulDocumentTokenizer extends DocumentTokenizer
     
     public static void main(String[] args)
     {
+    	/*
         String test = "A nightmare, also known as a \"bad dream\", is an unpleasant" +
         		" dream. Nightmares cause strong unpleasant emotional responses from" +
         		" the sleeper, typically fear or horror. The dream may contain " +
@@ -63,7 +64,7 @@ public class DefaulDocumentTokenizer extends DocumentTokenizer
         		"rehearsal.[2] This approach appears to reduce the effects of nightmares " +
         		"and other symptoms in acute stress disorder and post-traumatic stress " +
         		"disorder.[3]";
-        
+        */
 //        Document doc = new Document(test);
 //        List<Sentence> sentences = doc.getSentences();
 //        for (Sentence s : sentences)
