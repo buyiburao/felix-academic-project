@@ -26,7 +26,7 @@ public class WikiDFTF {
 		boolean tf = true;
 		if (args[0].equals("df"))
 			tf = false;
-		FileLineReader reader = new FileLineReader(args[1]);
+		LineReader reader = new LineReader(args[1]);
 		SentenceTokenizer tokenizer = new DefaultSentenceTokenizer();
 		int lineCounter = 0;
 		while(reader.hasNext())

@@ -21,7 +21,7 @@ public class CompactDirectory {
 		}
 	}
 	public void LoadFromFile(String fileName) throws Exception{
-		 FileLineReader reader = new FileLineReader(fileName);
+		 LineReader reader = new LineReader(fileName);
 		 while(reader.hasNext()){
 			 String[] parts = reader.next().split("\t");
 			 String term = parts[0];
