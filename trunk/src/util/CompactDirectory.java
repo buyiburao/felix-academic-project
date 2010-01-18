@@ -1,5 +1,7 @@
 package util;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,6 +51,16 @@ public class CompactDirectory {
 			 return highMap.get(term);
 		 else
 			 return 0;
+	}
+	
+	public static void main(String[] args) throws Exception{
+		CompactDirectory dict = new CompactDirectory();
+		dict.LoadFromFile("wikitf");
+		BufferedReader stdinReader = new BufferedReader(new InputStreamReader(System.in));
+		String term;
+		while((term = stdinReader.readLine()) != null){
+			System.out.println(dict.lookup(term));
+		}
 	}
 
 }
