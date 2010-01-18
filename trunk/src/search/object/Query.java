@@ -37,6 +37,7 @@ public class Query
         readyTerms();
         if (occurence == null)
         {
+        	occurence = new TermOccurence();
             for(Term t : terms)
             {
                 occurence.addTerm(t.getNormalized());
@@ -66,5 +67,10 @@ public class Query
     {
         readyOccurence();
         return occurence.getTermSet();
+    }
+    
+    public List<Term> getTermList()
+    {
+    	return terms;
     }
 }

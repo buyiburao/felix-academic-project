@@ -40,6 +40,10 @@ public class DefaulDocumentTokenizer extends DocumentTokenizer
                 start = current + 1;
             }
         }
+        //set sentence locations
+        for(int i = 0; i < sentences.size(); ++i){
+        	sentences.get(i).setPercentageLocation(i / 1.0 /sentences.size());
+        }
         
         // filter length less than 5 and more thatn 249
         SentenceFilter filter = new LengthSentenceFilter();

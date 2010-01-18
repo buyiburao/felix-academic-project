@@ -9,6 +9,7 @@ public class Sentence extends Token
     List<Term> terms;
     Document doc;
     boolean withQuestionMark = false;
+    double percentageLocation = 0.0;
     
     public Sentence(String string)
     {
@@ -72,6 +73,12 @@ public class Sentence extends Token
     }
     public void setQuestion(){
     	withQuestionMark = true;
+    }
+    public double getPercentageLocation(){
+    	return percentageLocation;
+    }
+    public void setPercentageLocation(double percent){
+    	percentageLocation = percent;
     }
     
 }
