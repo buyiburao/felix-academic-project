@@ -28,7 +28,7 @@ public class CompactDirectory {
 			 String[] parts = reader.next().split("\t");
 			 String term = parts[0];
 			 int value = Integer.parseInt(parts[1]);
-			 if (value > threshold){
+			 if (value >= threshold){
 				 highMap.put(term, value);
 			 }
 			 else{
