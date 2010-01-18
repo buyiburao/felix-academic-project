@@ -43,7 +43,7 @@ public class CompactDirectory {
 	public int lookup(String term){
 		 for (int i = 0; i < lowArrays.size(); ++i){
 			 int index;
-			 if ((index = Collections.binarySearch(lowArrays.get(i), term)) != -1){
+			 if ((index = Collections.binarySearch(lowArrays.get(i), term)) >= 0){
 				 return i;
 			 }
 		 }
@@ -55,7 +55,7 @@ public class CompactDirectory {
 	
 	public static void main(String[] args) throws Exception{
 		CompactDirectory dict = new CompactDirectory();
-		dict.LoadFromFile("wikitf");
+		dict.LoadFromFile("d:\\test.txt");
 		BufferedReader stdinReader = new BufferedReader(new InputStreamReader(System.in));
 		String term;
 		while((term = stdinReader.readLine()) != null){
