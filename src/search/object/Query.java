@@ -71,6 +71,7 @@ public class Query
     
     public List<Term> getTermList()
     {
+    	readyTerms();
     	return terms;
     }
 }

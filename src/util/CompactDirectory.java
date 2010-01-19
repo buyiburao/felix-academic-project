@@ -22,7 +22,7 @@ public class CompactDirectory {
 			lowArrays.add(new ArrayList<String>());
 		}
 	}
-	public void LoadFromFile(String fileName) throws Exception{
+	public synchronized void LoadFromFile(String fileName) throws Exception{
 		 LineReader reader = new LineReader(fileName);
 		 while(reader.hasNext()){
 			 String[] parts = reader.next().split("\t");

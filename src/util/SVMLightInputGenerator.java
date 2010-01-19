@@ -3,22 +3,9 @@ package util;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import search.object.FeatureValue;
+
 public class SVMLightInputGenerator {
-	class FeatureValue implements Comparable{
-		int featureId;
-		double value;
-		
-		public FeatureValue(int id, double value){
-			this.featureId = id;
-			this.value = value;
-		}
-		
-		@Override
-		public int compareTo(Object arg0) {
-			return new Integer(featureId).compareTo(((FeatureValue)arg0).featureId);
-		}
-		
-	}
 	
 	class Case{
 		double target;
@@ -40,7 +27,11 @@ public class SVMLightInputGenerator {
 	}
 	
 	public void addFeatureValue(int feature, double value){
-		currentCase.featureList.add(new FeatureValue(feature, value));
+		addFeatureValue(new FeatureValue(feature, value));
+	}
+	
+	public void addFeatureValue(FeatureValue fv){
+		currentCase.featureList.add(fv);
 	}
 	
 	public void finishCurrentCase(){

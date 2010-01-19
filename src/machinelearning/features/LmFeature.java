@@ -6,13 +6,18 @@ import util.CompactDirectory;
 
 public class LmFeature extends QueryBiasedSentenceFeatureExtractor
 {
-	private static int DOC_NUM = 1000000;
-	private CompactDirectory dict;
-    public LmFeature(Query query, String tfFile) throws Exception
+	private int docNum = 1000000;
+	private static CompactDirectory dict;
+	private static String tfFileName = "";
+    public LmFeature(Query query, String tfFile, int docNum) throws Exception
     {
         super(query);
-        dict = new CompactDirectory();
-        dict.LoadFromFile(tfFile);
+    	this.docNum = docNum;
+        if (!tfFile.equals(tfFileName) || dict == null){
+        	dict = new CompactDirectory();
+        	dict.LoadFromFile(tfFile);
+        	tfFileName = tfFile;
+        }
     }
 
     @Override
@@ -22,8 +27,15 @@ public class LmFeature extends QueryBiasedSentenceFeatureExtractor
         double u = 0.1;
         for (String t : query.getTermSet())
         {
-            double pwc = dict.lookup(t) / 1.0 / DOC_NUM;
+        	int val = dict.lookup(t);
+        	if (val == 0)
+        		val = 1;
+            double pwc = val / 1.0 / docNum;
             score += query.getOccur(t) * Math.log((sentence.getOccur(t) + u * pwc)/ (sentence.getLength() + u));
+//            System.out.println(score);
+//            if (Double.isInfinite(score)){
+//            	System.out.println(query.getOccur(t) + " " + sentence.getOccur(t) + " " + sentence.getLength());
+//            }
         }
         return score;
     }
