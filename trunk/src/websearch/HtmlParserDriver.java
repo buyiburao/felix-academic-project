@@ -1,5 +1,14 @@
 package websearch;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+
 import org.htmlparser.Node;
 import org.htmlparser.Parser;
 import org.htmlparser.nodes.TagNode;
@@ -18,8 +27,7 @@ public class HtmlParserDriver
     private static void extractText(TagNode node, StringBuilder builder)
     {
         String tagName =node.getTagName();
-        if ( tagName.compareToIgnoreCase("a") == 0
-                || tagName.compareToIgnoreCase("script") == 0
+        if ( tagName.compareToIgnoreCase("script") == 0
                 || tagName.compareToIgnoreCase("title") == 0
                 || tagName.compareToIgnoreCase("style") == 0
                 || tagName.compareToIgnoreCase("head") == 0) 
@@ -33,23 +41,23 @@ public class HtmlParserDriver
         {
             if (n instanceof TagNode)
             {
-                extractText((TagNode)n, builder);
+                TagNode tagNode = (TagNode)n;
+                extractText(tagNode, builder);
             }
             else if (n instanceof TextNode)
             {
                 String text = ((TextNode)n).getText();
-//                if (text.contains("geturl"))
-//                {
-//                    System.out.println(n.toString());
-//                    try{
-//                    System.out.print(n.getParent().toString());}
-//                    catch(Exception e){}
-//                }
                 if(text.length() > 0)
                 {
                     builder.append(text);
+                    builder.append(" ");
                 }
             }
+        }
+        if (tagName.equalsIgnoreCase("p")
+                || tagName.equalsIgnoreCase("div"))
+        {
+            builder.append(".");
         }
     }
     
@@ -72,11 +80,12 @@ public class HtmlParserDriver
         {
             if (node instanceof TagNode)
             {
-                if (((TagNode)node).getTagName().equalsIgnoreCase("body"))
+//                System.out.println(node.toString());
+//                if (((TagNode)node).getTagName().equalsIgnoreCase("body"))
                     extractText((TagNode)node, builder);
             }
         }
-        return builder.toString().replaceAll("&[a-zA-Z];", "").replaceAll("\\s+", " ");
+        return builder.toString().replaceAll("&[a-zA-Z0-9]+;", "").replaceAll("( [.])+", ".").replaceAll("\\s+", " ").replaceAll("[.]+", ".");
     }
 
     public static String getBodyTextGoogleCached(String url) throws Exception
@@ -106,9 +115,42 @@ public class HtmlParserDriver
         return getBodyTextByHtml(html);
     }
     
+    public static String getBodyTextFile(String fileName) throws IOException
+    {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
+            String line = null;
+            StringBuilder builder = new StringBuilder();
+            while ((line = reader.readLine()) != null)
+            {
+//                System.out.println(line);
+                builder.append(line);
+            }
+            String html = builder.toString();
+            String bodyText = HtmlParserDriver.getBodyTextByHtml(html);
+//            System.out.print(bodyText);
+            return bodyText;
+    }
+    
     public static void main(String[] args)
     {
-        String result = HtmlParserDriver.getBodyText("http://therapists.psychologytoday.com/rms/zip/48360.html");
-        System.out.println(result);
+        for (int i = 1; i <= 2400; i++)
+        {
+            File file = new File("data/pages/"+i);
+            if (file.exists())
+            {
+                try
+                {
+                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("data/pages/" + i + ".text")));
+                    writer.write(HtmlParserDriver.getBodyTextFile("data/pages/"+i));
+                    writer.close();
+                    
+                } catch (IOException e)
+                {
+                    System.out.println("Parse Error " + i);
+//                    e.printStackTrace();
+                }
+            }
+            
+        }
     }
 }

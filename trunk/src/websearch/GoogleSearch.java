@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
-import java.util.Date;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -40,24 +39,56 @@ class Record extends Thread
         return body;
     }
 
-    String url;
-    String googleSnippet;
-    String title;
-    String body;
+    private String url;
+    private String googleSnippet;
+    private String title;
+    private String body;
+    private Counter counter;
     
-    public Record(String url, String snippet, String title)
+    public Record(String url, String snippet, String title, Counter counter)
     {
         this.url = url;
         this.googleSnippet = snippet;
         this.title = title;
         this.body = null;
+        this.counter = counter;
     }
     
     public void run()
     {
-        HtmlParserDriver driver = new HtmlParserDriver();
-        body = driver.getBodyText(url).replaceAll("\\s+", " ");
+        body = HtmlParserDriver.getBodyText(url).replaceAll("\\s+", " ");
+//        try
+//        {
+//            body = WebService.get(url);
+//        } catch (Exception e)
+//        {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
     }
+}
+
+class Counter
+{
+    private int count = 0;
+    public Counter()
+    {
+        count = 0;
+    }
+    synchronized public void reset()
+    {
+        count = 0;
+    }
+    synchronized void tida()
+    {
+        count++;
+    }
+    
+    synchronized int getCount()
+    {
+        return count;
+    }
+    
 }
 
 
@@ -92,9 +123,10 @@ public class GoogleSearch  implements SearchEngine
 
     private void retry(int i, int start, int idx, String url) 
     {
-        try {
+        try 
+        {
             Thread.sleep(i*1000*60);
-            System.out.println(new Date().toString()+" google "+url+" start:"+start+" num:8");
+//            System.out.println(new Date().toString()+" google "+url+" start:"+start+" num:8");
             String context = WebService.get(String.format(GOOGLE_URL, url, URLEncoder
                         .encode(query, "utf8"), start));
             //			System.out.println(context);
@@ -171,37 +203,58 @@ public class GoogleSearch  implements SearchEngine
         
     public static void submitQuery(String query, String file) throws IOException
     {
-        GoogleSearch bs = new GoogleSearch(query, 120);
+        GoogleSearch bs = new GoogleSearch(query, 16);
        
         Record[] records = new Record[bs.size()];
+        Counter counter = new Counter();
+        
+//        System.out.println(bs.size() + " task commited");
         for (int i = 0; i < records.length; i++) 
         {
             String url = bs.url(i);
             String snippet = bs.snippet(i);
             String title = bs.title(i);
-            records[i] = new Record(url, snippet, title);
+            records[i] = new Record(url, snippet, title, counter);
+//            System.out.println(url);
+//            try
+//            {
+////                System.out.println(WebService.get(url).replaceAll("\n", " "));
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e)
+//            {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            } catch (Exception e)
+//            {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
         }
+        
+        
         BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(bs.size());
-        ThreadPoolExecutor pool = new ThreadPoolExecutor(150, 200, 30, TimeUnit.SECONDS, queue);
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(16, 200, 30, TimeUnit.SECONDS, queue);
         
         for (int i = 0; i < bs.size(); i++)
         {
             pool.execute(records[i]);
         }
         
-        while(pool.getCompletedTaskCount() < 90)
+        while(pool.getCompletedTaskCount() < 5)
         {
             try
             {
-                Thread.sleep(5000);
-//                System.out.println(pool.getCompletedTaskCount());
-            } catch (InterruptedException e)
+                Thread.sleep(3000);
+                System.out.println(pool.getCompletedTaskCount());
+            } 
+            catch (InterruptedException e)
             {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            System.out.println(pool.getCompletedTaskCount());
+//            System.out.println(pool.getCompletedTaskCount());
         }
+        
         
         try
         {
@@ -220,7 +273,6 @@ public class GoogleSearch  implements SearchEngine
             Record record = records[i];
             if (record.getBody() == null)
                 continue;
-//                System.out.println(i + ":" + record.getBody());
             writer.write(String.format("##########%d##########\n", i));
             writer.write(record.getTitle() + "\n");
             writer.write(record.getSnippet() + "\n");
@@ -228,6 +280,7 @@ public class GoogleSearch  implements SearchEngine
             writer.write(record.getBody() + "\n");
         }
         writer.close();
+//        pool.shutdownNow();
     }
     /**
      * @param args
@@ -238,6 +291,7 @@ public class GoogleSearch  implements SearchEngine
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(args[0])));
         int i = 0;
         String line = null;
+        
         while((line = reader.readLine()) != null)
         {
             String file = "query.data/" + i;
@@ -248,8 +302,33 @@ public class GoogleSearch  implements SearchEngine
             {
                 System.out.println("Processing " + file);
                 submitQuery(line, file);
+//                pool.execute(new QueryTask(line, file));
             }
         }
     }
-
+    
+    
+    static class QueryTask extends Thread
+    {
+        private String query;
+        private String file;
+        public QueryTask(String query, String file)
+        {
+            this.query = query;
+            this.file = file;
+        }
+        
+        public void run()
+        {
+            
+            try
+            {
+                submitQuery(query, file);
+            } catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
 }
