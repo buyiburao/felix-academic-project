@@ -11,7 +11,7 @@ import java.util.List;
 public class GetEsa
 {
     public static String server = "http://192.168.4.148:8080/esa/esa";
-    private static int limit = 15;
+    private static int limit = 10;
 
     public static EsaInfo getEsa(String query) throws UnsupportedEncodingException
     {

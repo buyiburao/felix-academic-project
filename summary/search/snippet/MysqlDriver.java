@@ -448,6 +448,43 @@ public class MysqlDriver
         return toRet;
     }
     
+//    public int getLabeledNumber(String url)
+//    {
+//        String commit = String.format("select distinct url from training", convert(url));
+//        
+//        try
+//        {
+//            ResultSet set = statement.executeQuery(commit);
+//            while(set.next())
+//            {
+//                String sentence = set.getString("sentence");
+//                List<Integer> list = null;
+//                if(data.containsKey(sentence))
+//                {
+//                    list = data.get(sentence);
+//                }
+//                else
+//                {
+//                    list = new ArrayList<Integer>();
+//                    data.put(sentence, list);
+//                }
+//                
+//                list.add(set.getInt("rank"));
+//            }
+//            
+//        } catch (SQLException e)
+//        {
+//            e.printStackTrace();
+//        }
+//        
+//        SentenceRankScorer scorer = new SimpleRankScorer();
+//        for(String sentence: data.keySet())
+//        {
+//            toRet.put(sentence, scorer.getScore(data.get(sentence)));
+//        }
+//        return toRet;
+//    }
+    
     public boolean isTrainingLabeled(String query, String url, String user)
     {
         String commit = String.format("select * from training where query = '%s' and url = '%s' and user = '%s'",

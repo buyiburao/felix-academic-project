@@ -37,15 +37,15 @@ public class WebService
      */
     public static void main(String[] args) throws Exception
     {
-        System.out.println(getGoogleCached("http://therapists.psychologytoday.com/rms/zip/48360.html"));
+        System.out.println(WebService.get("http://www.webtender.com/"));
     }
 
     public static String get(String u) throws Exception
     {
         URL url = new URL(u);
         URLConnection connection = url.openConnection();
-        connection.setRequestProperty("User-agent",userAgents[ran.nextInt(userAgents.length)]);
-        connection.setRequestProperty("referer", String.format("http://%d.%d.%d.%d/", ran.nextInt(230) + 1, ran.nextInt(230), ran.nextInt(230), ran.nextInt(230)));
+//        connection.setRequestProperty("User-agent",userAgents[ran.nextInt(userAgents.length)]);
+//        connection.setRequestProperty("referer", String.format("http://%d.%d.%d.%d/", ran.nextInt(230) + 1, ran.nextInt(230), ran.nextInt(230), ran.nextInt(230)));
         String line;
         StringBuilder builder = new StringBuilder();
         BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -56,6 +56,25 @@ public class WebService
         }
         return builder.toString();
     }
+    
+//    public static String getWithProxy(String u) throws Exception
+//    {
+//        URL url = new URL(u);
+//        URLConnection connection = url.openConnection();
+//        connection.setRequestProperty("User-agent",userAgents[ran.nextInt(userAgents.length)]);
+//        connection.setRequestProperty("referer", String.format("http://%d.%d.%d.%d/", ran.nextInt(230) + 1, ran.nextInt(230), ran.nextInt(230), ran.nextInt(230)));
+//        String line;
+//        StringBuilder builder = new StringBuilder();
+//        BufferedReader reader = new BufferedReader(new InputStreamReader(
+//                connection.getInputStream()));
+//        while ((line = reader.readLine()) != null)
+//        {
+//            builder.append(line);
+//        }
+//        return builder.toString();
+//    }
+//    
+   
 
     public static String getGoogleCached(String u) throws Exception
     {

@@ -14,14 +14,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+
 import search.esa.ConceptVector;
 import search.esa.EsaInfo;
 import search.esa.GetEsa;
 import search.object.Document;
 import search.object.Sentence;
-
-import com.google.api.translate.Language;
-import com.google.api.translate.Translate;
 
 public class SqlImporter
 {
@@ -46,10 +44,10 @@ public class SqlImporter
                 ConceptVector vector = new ConceptVector(ei);
 //                ConceptVector vector = driver2.getConceptVector(sentence);
                     driver.insertConcept(sentence, vector);
-                String translation = Translate.execute(sentence, Language.ENGLISH, Language.CHINESE_SIMPLIFIED);
+//                String translation = Translate.execute(sentence, Language.ENGLISH, Language.CHINESE_SIMPLIFIED);
 //                String translation = translationMap.get(sentence);
 //                if (translationMap != null)
-                    driver.insertTranslation(url, sentence, translation);
+//                    driver.insertTranslation(url, sentence, translation);
             } catch (Exception e1)
             {
                 // TODO Auto-generated catch block
