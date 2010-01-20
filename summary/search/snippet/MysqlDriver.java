@@ -56,7 +56,7 @@ public class MysqlDriver
     
     public MysqlDriver(String host, int port, String username, String password)
     {
-        connectionToken = String.format("jdbc:mysql://%s:%d/snippet1?user=%s&password=%s&useUnicode=true&characterEncoding=UTF8", host, port, username, password);
+        connectionToken = String.format("jdbc:mysql://%s:%d/snippet2?user=%s&password=%s&useUnicode=true&characterEncoding=UTF8", host, port, username, password);
     }
     
     public MysqlDriver()
@@ -360,6 +360,7 @@ public class MysqlDriver
                 r.setGsnippet(rs.getString("gsnippet"));
                 toRet.add(r);
             }
+            System.out.println(toRet.size());
             return toRet;
         }
         catch (SQLException e)
@@ -440,7 +441,7 @@ public class MysqlDriver
             e.printStackTrace();
         }
         
-        SentenceRankScorer scorer = new SimpleRankScorer();
+        SentenceRankScorer scorer = new SentenceAverageScorer();
         for(String sentence: data.keySet())
         {
             toRet.put(sentence, scorer.getScore(data.get(sentence)));
