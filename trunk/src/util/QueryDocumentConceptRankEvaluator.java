@@ -14,8 +14,8 @@ import search.object.Sentence;
 public class QueryDocumentConceptRankEvaluator {
 	private String folder;
 	private double queryBoost;
-	private Query q;
-	private Document doc;
+	private Query q = new Query("");
+	private Document doc = new Document("");
 
 	public QueryDocumentConceptRankEvaluator(Properties prop) {
 		this.folder = prop.getProperty(ConfigConstant.LINK_FOLDER_CONFIG, ConfigConstant.DEFAULT_LINK_FOLDER);
