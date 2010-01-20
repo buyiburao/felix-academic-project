@@ -20,9 +20,7 @@ public class SnippetSVMLightInputGenerator {
 	}
 	public SnippetSVMLightInputGenerator(Properties p){
 		properties = p;
-		evaluator = new QueryDocumentConceptRankEvaluator(
-				properties.getProperty(ConfigConstant.LINK_FOLDER_CONFIG, ConfigConstant.DEFAULT_LINK_FOLDER)
-		);
+		evaluator = new QueryDocumentConceptRankEvaluator(p);
 	}
 	public void addCase(Sentence s, Query q, double target, boolean withQid, int qid) throws Exception{
 		SnippetFeatureExtractor sfe = new SnippetFeatureExtractor(s, q, evaluator, properties);
