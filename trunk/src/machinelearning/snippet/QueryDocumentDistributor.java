@@ -43,7 +43,7 @@ public class QueryDocumentDistributor {
 	{
 		driver.connect();
 		Properties prop = new Properties();
-		
+		prop.setProperty(ConfigConstant.LINK_FOLDER_CONFIG, "/root/Zunge/");
 		SnippetSVMLightInputGenerator gen = new SnippetSVMLightInputGenerator(prop);
 		System.err.println();
 		try {
