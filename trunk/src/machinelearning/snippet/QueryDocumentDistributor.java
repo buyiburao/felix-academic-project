@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -58,8 +59,10 @@ public class QueryDocumentDistributor {
 				{
 					Query query = new Query(line);
 					System.out.println(line);
-					for(Record record : driver.getRecord(line, true))
+					List<Record> records = driver.getRecord(query.getString(), true);
+					for(int j = 0; j < records.size(); j++)
 					{
+						Record record = records.get(j);
 						System.out.println(query.getString() + "\t" + record.getUrl());
 						try
 						{
@@ -69,15 +72,19 @@ public class QueryDocumentDistributor {
 							for(Sentence s : document.getSentences()){
 								if (sentenceScoreMap.containsKey(s.getString()))
 								{
-									try {
-										gen.addCase(s, query, sentenceScoreMap.get(s.getString()), 0);
-									} catch (Exception e) {
+									try 
+									{
+										gen.addCase(s, query, sentenceScoreMap.get(s.getString()), i * 5 + j);
+									} 
+									catch (Exception e) 
+									{
 										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
 								}
 							}
-						} catch(Exception e)
+						} 
+						catch(Exception e)
 						{
 						}
 						
