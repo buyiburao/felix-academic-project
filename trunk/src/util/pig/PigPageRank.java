@@ -87,7 +87,7 @@ public class PigPageRank {
 			}
 		}
 		
-		Map<Integer, List<Integer>> inlinks = new HashMap<Integer, List<Integer>>();
+		Map<Integer, List<Integer>> tInlinks = new HashMap<Integer, List<Integer>>();
 		int[] outdegrees = new int[N];
 		for (String s : map.keySet()) {
 			List<Integer> li = new ArrayList<Integer>();
@@ -103,7 +103,11 @@ public class PigPageRank {
 					outdegrees[newIn]++;
 				}
 			}
-			inlinks.put(map.get(s), li);
+			tInlinks.put(map.get(s), li);
+		}
+		List<List<Integer>> inlinks = new ArrayList<List<Integer>>();
+		for (int i = 0; i < N; ++i) {
+			inlinks.add(tInlinks.get(i));
 		}
 
 		double[] cur = Arrays.copyOf(bias, bias.length);
