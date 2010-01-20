@@ -40,10 +40,12 @@ public class PigPageRank {
 		ret.addAll(border);
 
 		for (int i = 0; i < extend; ++i) {
+			System.out.println(">> " + ret.size());
 			border = extend(bigGraph, border);
 			border.removeAll(ret);
 			ret.addAll(border);
 		}
+		System.out.println(">> " + ret.size());
 
 		return ret;
 	}
