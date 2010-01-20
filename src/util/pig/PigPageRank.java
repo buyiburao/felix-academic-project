@@ -24,6 +24,9 @@ public class PigPageRank {
 	}
 
 	public PigPageRank selectNodes(Set<String> set, int ext) {
+		inlinks.clear();
+		outdegrees.clear();
+		
 		Set<String> extended = extend(bigGraph, set, ext);
 
 		for (String concept : extended) {
@@ -94,6 +97,12 @@ public class PigPageRank {
 		for (String s : outdegrees.keySet()) {
 			if (!bias.containsKey(s)) {
 				bias.put(s, 0.0);
+			}
+		}
+		for (String s : bias.keySet()) {
+			if (!outdegrees.containsKey(s)) {
+				inlinks.put(s, new ArrayList<String>());
+				outdegrees.put(s, 0);
 			}
 		}
 		
