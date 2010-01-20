@@ -1,7 +1,8 @@
 package util.pig;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,9 +15,7 @@ public class PigPageRank {
 
 	private static WSReader bigGraph = null;
 
-	private Map<String, List<String>> inlinks = new HashMap<String, List<String>>();
-
-	private Map<String, Integer> outdegrees = new HashMap<String, Integer>();
+	private static Set<String> nodes = new HashSet<String>();
 
 	public PigPageRank(String folder) {
 		if (bigGraph == null) {
@@ -25,33 +24,7 @@ public class PigPageRank {
 	}
 
 	public PigPageRank selectNodes(Set<String> set, int ext) {
-		inlinks.clear();
-		outdegrees.clear();
-		
-		Set<String> extended = extend(bigGraph, set, ext);
-
-		for (String concept : extended) {
-			inlinks.put(concept, new ArrayList<String>());
-			outdegrees.put(concept, 0);
-		}
-
-		Set<String> nodes = outdegrees.keySet();
-		for (String node : nodes) {
-			List<String> list = inlinks.get(node);
-
-			int[] ins = bigGraph.getInLink(bigGraph.getId(node));
-			if (ins == null) {
-				ins = new int[0];
-			}
-			for (int in : ins) {
-				String concept = bigGraph.getCcpt(in);
-				if (nodes.contains(concept)) {
-					list.add(concept);
-					outdegrees.put(concept, outdegrees.get(concept) + 1);
-				}
-			}
-		}
-
+		nodes = extend(bigGraph, set, ext);
 		return this;
 	}
 
@@ -93,50 +66,53 @@ public class PigPageRank {
 		return ret;
 	}
 
-	public Map<String, Double> calc(Map<String, Double> bias, double lambda,
+	public Map<String, Double> calc(Map<String, Double> pBias, double lambda,
 			int rounds) {
-		for (String s : outdegrees.keySet()) {
-			if (!bias.containsKey(s)) {
-				bias.put(s, 0.0);
-			}
-		}
-		for (String s : bias.keySet()) {
-			if (!outdegrees.containsKey(s)) {
-				inlinks.put(s, new ArrayList<String>());
-				outdegrees.put(s, 0);
-			}
+		List<String> list = new ArrayList<String>(nodes);
+		Collections.sort(list);
+		int N = list.size();
+		System.out.println(N + "\t" + bigGraph.ccpts() + "\t" + (N * 100.0 / bigGraph.ccpts()) + "%");
+		
+		double[] bias = new double[N];
+		for (String s : pBias.keySet()) {
+			bias[Collections.binarySearch(list, s)] = pBias.get(s);
 		}
 		
-		Set<String> nodes = bias.keySet();
-		int N = nodes.size();
-		System.out.println(N);
-		Map<String, Double> curr = new HashMap<String, Double>(bias);
-
-		for (int i = 0; i < rounds; ++i) {
-			System.out.println("Pig PageRank Round " + i + "\t" + new Date());
-			Map<String, Double> temp = getEmptyVector(nodes);
-
-			for (String node : bias.keySet()) {
-				double rank = 0;
-
-				for (String source : inlinks.get(node)) {
-					rank += curr.get(source) / outdegrees.get(source);
+		List<List<Integer>> inlinks = new ArrayList<List<Integer>>();
+		int[] outdegrees = new int[N];
+		for (int i = 0; i < N; ++i) {
+			String s = list.get(i);
+			List<Integer> li = new ArrayList<Integer>();
+			int[] ins = bigGraph.getInLink(bigGraph.getId(s));
+			for (int in : ins) {
+				String t = bigGraph.getCcpt(in);
+				int newIn = Collections.binarySearch(list, t);
+				if (newIn >= 0) {
+					li.add(newIn);
+					outdegrees[newIn]++;
 				}
-
-				rank = (1 - lambda) * rank + lambda / N;
-				temp.put(node, rank);
 			}
-
-			curr = new HashMap<String, Double>(temp);
+			inlinks.add(li);
 		}
 
-		return curr;
-	}
-
-	private Map<String, Double> getEmptyVector(Set<String> nodes) {
+		double[] cur = Arrays.copyOf(bias, bias.length);
+		double[] temp = new double[N];
+		for (int i = 0; i < rounds; ++i) {
+			Arrays.fill(temp, 0);
+			
+			for (int j = 0; j < N; ++j) {
+				for (int k : inlinks.get(j)) {
+					temp[j] += cur[k] / outdegrees[k];
+				}
+				temp[j] = temp[j] * (1 - lambda) + lambda * bias[j] / N;
+			}
+			
+			cur = Arrays.copyOf(temp, temp.length);
+		}
+		
 		Map<String, Double> ret = new HashMap<String, Double>();
-		for (String s : nodes) {
-			ret.put(s, 0.0);
+		for (int i = 0; i < list.size(); ++i) {
+			ret.put(list.get(i), cur[i]);
 		}
 		return ret;
 	}
