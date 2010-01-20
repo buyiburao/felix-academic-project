@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import machinelearning.features.ConceptRankFeatureExtractor;
 import machinelearning.features.ExactMatchFeatureExtractor;
 import machinelearning.features.LmFeature;
 import machinelearning.features.LocationSentenceFeatureExtractor;
@@ -17,12 +18,15 @@ import machinelearning.features.UniqueTermRepetitionSentenceFeatureExtractor;
 import search.object.FeatureValue;
 import search.object.Query;
 import search.object.Sentence;
+import util.ConceptPRCalculator;
+import util.QueryDocumentConceptRankEvaluator;
 
 public class SnippetFeatureExtractor {
 	private ArrayList<SentenceFeatureExtractor> fes = new ArrayList<SentenceFeatureExtractor>();
 	private Sentence sentence;
-	public SnippetFeatureExtractor(Sentence s, Query q, Properties properties) throws Exception{
+	public SnippetFeatureExtractor(Sentence s, Query q, QueryDocumentConceptRankEvaluator evaluator, Properties properties) throws Exception{
 		sentence = s;
+		fes.add(new ConceptRankFeatureExtractor(q, evaluator));
 		fes.add(new ExactMatchFeatureExtractor(q));
 		fes.add(new LmFeature(
 				q,

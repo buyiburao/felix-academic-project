@@ -8,20 +8,24 @@ import search.object.FeatureValue;
 import search.object.Query;
 import search.object.Sentence;
 import util.LineReader;
+import util.QueryDocumentConceptRankEvaluator;
 import util.SVMLightInputGenerator;
 
 public class SnippetSVMLightInputGenerator {
 	private SVMLightInputGenerator gen = new SVMLightInputGenerator();
 	private Properties properties;
-	
+	private QueryDocumentConceptRankEvaluator evaluator;
 	public SnippetSVMLightInputGenerator(){
 		this(new Properties());
 	}
 	public SnippetSVMLightInputGenerator(Properties p){
 		properties = p;
+		evaluator = new QueryDocumentConceptRankEvaluator(
+				properties.getProperty(ConfigConstant.LINK_FOLDER_CONFIG, ConfigConstant.DEFAULT_LINK_FOLDER)
+		);
 	}
 	public void addCase(Sentence s, Query q, double target, boolean withQid, int qid) throws Exception{
-		SnippetFeatureExtractor sfe = new SnippetFeatureExtractor(s, q, properties);
+		SnippetFeatureExtractor sfe = new SnippetFeatureExtractor(s, q, evaluator, properties);
 		List<FeatureValue> features = sfe.getFeatures();
 		for(FeatureValue fv : features){
 			gen.addFeatureValue(fv);
