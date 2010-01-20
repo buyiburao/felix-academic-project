@@ -75,7 +75,10 @@ public class PigPageRank {
 		
 		double[] bias = new double[N];
 		for (String s : pBias.keySet()) {
-			bias[Collections.binarySearch(list, s)] = pBias.get(s);
+			int id = Collections.binarySearch(list, s);
+			if (id >= 0) {
+				bias[id] = pBias.get(s);
+			}
 		}
 		
 		List<List<Integer>> inlinks = new ArrayList<List<Integer>>();
