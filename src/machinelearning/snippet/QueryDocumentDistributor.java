@@ -60,7 +60,7 @@ public class QueryDocumentDistributor {
 					System.out.println(line);
 					for(Record record : driver.getRecord(line, true))
 					{
-						System.out.print(query.getString() + "\t" + record.getUrl());
+						System.out.println(query.getString() + "\t" + record.getUrl());
 						try
 						{
 							String pageContent = driver.getPage(record.getUrl());
