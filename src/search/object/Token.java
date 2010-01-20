@@ -19,5 +19,12 @@ public class Token
     {
         return originalString;
     }
+    public boolean equals(Object obj){
+    	if (obj instanceof Token){
+    		Token token = (Token)obj;
+    		return token.originalString.equals(this.originalString);
+    	}
+    	return false;
+    }
     
 }
