@@ -12,10 +12,10 @@ import search.object.Query;
 import search.object.Sentence;
 
 public class QueryDocumentConceptRankEvaluator {
-	private String folder;
-	private double queryBoost;
-	private Query q = new Query("");
-	private Document doc = new Document("");
+	protected String folder;
+	protected double queryBoost;
+	protected Query q = new Query("");
+	protected Document doc = new Document("");
 
 	public QueryDocumentConceptRankEvaluator(Properties prop) {
 		this.folder = prop.getProperty(ConfigConstant.LINK_FOLDER_CONFIG, ConfigConstant.DEFAULT_LINK_FOLDER);
@@ -37,16 +37,25 @@ public class QueryDocumentConceptRankEvaluator {
 					docConceptList.add(concept);
 				}
 			}
-			ConceptPRCalculator.calculate(queryConceptList, docConceptList, 0.1, queryBoost, this.folder);
+			calculate(queryConceptList, docConceptList);
 			this.q = q;
 			this.doc = sentence.getDoc();
 		}
 		EsaInfo info = GetEsa.getEsa(sentence.getString());
 		double sum = 0;
 		for (String str : info.concepts) {
-			sum += ConceptPRCalculator.getPRByConcept(str);
+			sum += getPRByConcept(str);
 		}
 		return sum;
 
+	}
+
+	protected double getPRByConcept(String str) {
+		return ConceptPRCalculator.getPRByConcept(str);
+	}
+
+	protected void calculate(ArrayList<String> queryConceptList,
+			ArrayList<String> docConceptList) {
+		ConceptPRCalculator.calculate(queryConceptList, docConceptList, 0.1, queryBoost, this.folder);
 	}
 }

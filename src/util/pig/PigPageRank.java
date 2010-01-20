@@ -11,19 +11,19 @@ import util.zunge.WSReader;
 
 public class PigPageRank {
 
+	private static WSReader bigGraph = null;
+	
 	private Map<String, List<String>> inlinks = new HashMap<String, List<String>>();
 
 	private Map<String, Integer> outdegrees = new HashMap<String, Integer>();
 
-	private String folder;
-	
 	public PigPageRank(String folder) {
-		this.folder = folder;
+		if (bigGraph == null) {
+			bigGraph = new WSReader(folder);
+		}
 	}
 	
 	public PigPageRank selectNodes(Set<String> set, int ext) {
-		WSReader bigGraph = new WSReader(folder);
-		
 		Set<String> extended = extend(bigGraph, set, ext);
 
 		for (String concept : extended) {
