@@ -31,32 +31,27 @@ public class PigPageRank {
 	private Set<String> extend(WSReader bigGraph, Set<String> set, int extend) {
 		Set<String> ret = new HashSet<String>();
 
-		Map<String, Integer> border = new HashMap<String, Integer>();
+		Set<String> border = new HashSet<String>();
 		for (String node : set) {
 			if (bigGraph.getId(node) >= 0) {
-				border.put(node, 1);
+				border.add(node);
 			}
 		}
-		ret.addAll(border.keySet());
+		ret.addAll(border);
 
-		for (int i = 1; i <= extend; ++i) {
+		for (int i = 0; i < extend; ++i) {
 			System.out.println(">> " + ret.size());
-			border = extend(bigGraph, border.keySet());
-			for (String s : new ArrayList<String>(border.keySet())) {
-				if (ret.contains(s)) {
-					border.remove(s);
-				} else if (border.get(s) >= i) {
-					ret.add(s);
-				}
-			}
+			border = extend(bigGraph, border);
+			border.removeAll(ret);
+			ret.addAll(border);
 		}
 		System.out.println(">> " + ret.size());
 
 		return ret;
 	}
 
-	private Map<String, Integer> extend(WSReader bigGraph, Set<String> border) {
-		Map<String, Integer> ret = new HashMap<String, Integer>();
+	private Set<String> extend(WSReader bigGraph, Set<String> border) {
+		Set<String> ret = new HashSet<String>();
 
 		for (String b : border) {
 			int id = bigGraph.getId(b);
@@ -65,11 +60,7 @@ public class PigPageRank {
 				if (bins != null) {
 					for (int bin : bins) {
 						String c = bigGraph.getCcpt(bin);
-						if (ret.containsKey(c)) {
-							ret.put(c, ret.get(c) + 1);
-						} else {
-							ret.put(c, 1);
-						}
+						ret.add(c);
 					}
 				}
 			}
