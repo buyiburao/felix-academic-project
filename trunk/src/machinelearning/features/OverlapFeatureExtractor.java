@@ -21,15 +21,12 @@ public class OverlapFeatureExtractor extends
 		for(Term t : s.getTerms())
 			sentenceTermSet.add(t.getNormalized());
 		for(Term t : query.getTermList()){
-			System.out.println(t.getNormalized());
 			queryTermSet.add(t.getNormalized());
 		}
 			
 		int all = queryTermSet.size();
 		queryTermSet.removeAll(sentenceTermSet);
 		int overlap = all - queryTermSet.size();
-		System.out.println(all);
-		System.out.println(overlap);
 		return overlap / 1.0 /all;
 	}
 
