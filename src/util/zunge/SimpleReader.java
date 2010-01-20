@@ -1,6 +1,7 @@
 package util.zunge;
 
 import java.io.File;
+import java.io.*;
 import java.util.Scanner;
 
 
@@ -32,20 +33,29 @@ public class SimpleReader {
 	public void read(){
 		try{
 			//Read Dictionary
-			System.out.println("Read Dictionary");
-			Scanner sc = new Scanner(new File(dictFile));
-			int ccptCount = Integer.parseInt(sc.nextLine());
+			System.out.println("Read Dictionary " + dictFile);
+			//Scanner sc = new Scanner(new File(dictFile));
+			BufferedReader reader = new BufferedReader(new FileReader(dictFile));
+			int ccptCount = Integer.parseInt(reader.readLine());
 			DictInfo.init(ccptCount);
 			for (int i = 0;i < ccptCount;++i){
-				String line = sc.nextLine();
+				String line = "";
+				try{
+					line = reader.readLine();
+				}
+				catch(Exception e){
+					System.out.println("ERROR " + i);
+					System.exit(-1);
+				}
 				int pos = line.indexOf(" ");
 				String ccpt = line.substring(pos+1);
 				DictInfo.put(ccpt);
 			}
-			sc.close();
+			//sc.close();
+			reader.close();
 			//Read Link
 			System.out.println("Read Link");
-			sc = new Scanner(new File(linkFile));
+			Scanner sc = new Scanner(new File(linkFile));
 			LinkInfo.init(dictInfo);
 			for (int i = 0;i < ccptCount;++i){
 				sc.nextInt();
@@ -59,6 +69,7 @@ public class SimpleReader {
 				}
 			}
 			sc.close();
+			/*
 			//Read Disambiguation
 			System.out.println("Read Disambiguation");
 			sc = new Scanner(new File(disaFile));
@@ -95,6 +106,7 @@ public class SimpleReader {
 			}
 			
 			sc.close();
+			*/
 		}catch(Exception e){
 			e.printStackTrace();
 		}

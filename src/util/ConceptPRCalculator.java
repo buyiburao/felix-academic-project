@@ -45,8 +45,11 @@ public class ConceptPRCalculator {
 				System.out.print(con + " ");
 				conceptList.add(con);
 			}
-			ConceptPRCalculator.calculate(conceptList, 0.1, graphFolder);
-			System.out.println(ConceptPRCalculator.getPRByConcept(info.concepts[0]));
 		}
+		System.out.println();
+		long beginTime = System.currentTimeMillis();
+		ConceptPRCalculator.calculate(conceptList, 0.1, graphFolder);
+		System.out.println((System.currentTimeMillis() - beginTime) + "ms");
+		System.out.println(ConceptPRCalculator.getPRByConcept(conceptList.get(0)));
 	}
 }
