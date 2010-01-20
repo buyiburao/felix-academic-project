@@ -54,7 +54,9 @@ public class PigPageRank {
 		
 		Set<String> border = new HashSet<String>();
 		for (String node : set) {
+			if (bigGraph.getId(node) >= 0) {
 				border.add(node);
+			}
 		}
 		ret.addAll(border);
 		
@@ -71,9 +73,12 @@ public class PigPageRank {
 		Set<String> ret = new HashSet<String>();
 
 		for (String b : border) {
-			int[] bins = bigGraph.getInLink(bigGraph.getId(b));
-			for (int bin : bins) {
-				ret.add(bigGraph.getCcpt(bin));
+			int id = bigGraph.getId(b);
+			if (id >= 0) {
+				int[] bins = bigGraph.getInLink(id);
+				for (int bin : bins) {
+					ret.add(bigGraph.getCcpt(bin));
+				}
 			}
 		}
 		
