@@ -46,7 +46,7 @@ public class PigPageRank {
 			border.removeAll(ret);
 			
 			for (String s : border) {
-				if (newcomers.get(s) > i * 2) {
+				if (newcomers.get(s) > i * 3) {
 					ret.add(s);
 				}
 			}
