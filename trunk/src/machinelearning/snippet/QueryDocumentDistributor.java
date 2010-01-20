@@ -43,8 +43,6 @@ public class QueryDocumentDistributor {
 	{
 		driver.connect();
 		Properties prop = new Properties();
-		prop.setProperty(ConfigConstant.TF_FILE_CONFIG, "d:\\wikitf_partial");
-		prop.setProperty(ConfigConstant.DEFAULT_DOC_NUM, "1000000");
 		
 		SnippetSVMLightInputGenerator gen = new SnippetSVMLightInputGenerator(prop);
 		
@@ -62,19 +60,24 @@ public class QueryDocumentDistributor {
 					for(Record record : driver.getRecord(line, true))
 					{
 						System.out.print(query.getString() + "\t" + record.getUrl());
-						String pageContent = driver.getPage(record.getUrl());
-						Document document = new Document(pageContent);
-						Map<String, Double> sentenceScoreMap = driver.getTraining(query.getString(), record.getUrl());
-						for(Sentence s : document.getSentences()){
-							if (sentenceScoreMap.containsKey(s.getString()))
-							{
-								try {
-									gen.addCase(s, query, sentenceScoreMap.get(s.getString()), 0);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
+						try
+						{
+							String pageContent = driver.getPage(record.getUrl());
+							Document document = new Document(pageContent);
+							Map<String, Double> sentenceScoreMap = driver.getTraining(query.getString(), record.getUrl());
+							for(Sentence s : document.getSentences()){
+								if (sentenceScoreMap.containsKey(s.getString()))
+								{
+									try {
+										gen.addCase(s, query, sentenceScoreMap.get(s.getString()), 0);
+									} catch (Exception e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
 								}
 							}
+						} catch(Exception e)
+						{
 						}
 						
 						BufferedWriter writer = new BufferedWriter(new FileWriter("result-" + number));
