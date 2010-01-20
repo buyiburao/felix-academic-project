@@ -6,18 +6,18 @@
 	</path>
 	<target name="compile">
 		<mkdir dir="build"/>
-		<javac srcdir="src" destdir="build">
+		<javac srcdir="src:summary" destdir="build" debug="true">
 			<classpath refid = "compile.classpath"/>
 		</javac>
 	</target>
 	<target name="jar" depends="compile">
-		<jar destfile="wikidftf.jar">
+		<jar destfile="all.jar">
 			<fileset dir="build">
 				<include name="**/*.class"/>
 			</fileset>
-			<manifest>
-				<attribute name = "Main-class" value="util.WikiDFTF"/>
-			</manifest>
 		</jar>
+	</target>
+	<target name="clean">
+		<delete dir="build"/>
 	</target>
 </project>

@@ -32,6 +32,10 @@ public class EvalPR {
 		}
 		for (String s : concepts) {
 			int id = DictInfo.getId(s);
+			if (id == -1){
+				System.err.println("Concept " + s + " not found.");
+				continue;
+			}
 			bias[id]++;
 		}
 		bias = cpr.normalize(bias);
