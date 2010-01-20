@@ -21,9 +21,9 @@ public class ConceptPRCalculator {
 		EvalPR.init(r);
 	}
 
-	static void calculate(List<String> concepts, double d, String graphFolder) {
+	static void calculate(List<String> queryConcepts, List<String> docConcepts, double d, double queryBoost, String graphFolder) {
 		init(graphFolder);
-		EvalPR.eval(concepts, d);
+		EvalPR.eval(queryConcepts, docConcepts, d, queryBoost);
 	}
 
 	static double getPRByConcept(String concept) {

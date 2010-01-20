@@ -19,7 +19,7 @@ public class EvalPR {
 		return prForConcepts[DictInfo.getId(concept)];
 	}
 
-	public static void eval(List<String> concepts, double d) {
+	public static void eval(List<String> queryConcepts, List<String> docConcepts, double d, double queryBoost) {
 		// PR for ccpts
 		/*
 		 * Input: bias: ccpt vector that appeared d: expand factor Algo: PR_n =
@@ -30,7 +30,15 @@ public class EvalPR {
 		for (int i = 0; i < r.ccpts(); ++i) {
 			bias[i] = 0;
 		}
-		for (String s : concepts) {
+		for (String s : queryConcepts) {
+			int id = DictInfo.getId(s);
+			if (id == -1){
+				System.err.println("Concept " + s + " not found.");
+				continue;
+			}
+			bias[id]+=queryBoost;
+		}
+		for (String s : docConcepts) {
 			int id = DictInfo.getId(s);
 			if (id == -1){
 				System.err.println("Concept " + s + " not found.");
