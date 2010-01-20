@@ -87,6 +87,9 @@ public class PigPageRank {
 			String s = list.get(i);
 			List<Integer> li = new ArrayList<Integer>();
 			int[] ins = bigGraph.getInLink(bigGraph.getId(s));
+			if (ins == null) {
+				ins = new int[0];
+			}
 			for (int in : ins) {
 				String t = bigGraph.getCcpt(in);
 				int newIn = Collections.binarySearch(list, t);
