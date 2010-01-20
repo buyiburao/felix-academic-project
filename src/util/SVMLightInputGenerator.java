@@ -55,6 +55,7 @@ public class SVMLightInputGenerator {
 	public void finishCurrentCase(){
 		cases.add(currentCase);
 		Collections.sort(currentCase.featureList);
+		System.err.println(currentCase);
 		currentCase = new Case();
 	}
 	

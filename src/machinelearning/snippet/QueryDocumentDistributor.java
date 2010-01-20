@@ -45,7 +45,7 @@ public class QueryDocumentDistributor {
 		Properties prop = new Properties();
 		
 		SnippetSVMLightInputGenerator gen = new SnippetSVMLightInputGenerator(prop);
-		
+		System.err.println();
 		try {
 			
 			BufferedReader reader = new BufferedReader(new FileReader(queryFile));
@@ -53,6 +53,7 @@ public class QueryDocumentDistributor {
 			String line = null;
 			for (int i = 0; (line = reader.readLine()) != null; i++)
 			{
+				System.err.println("Processing " + i);
 				if (i % split == number)
 				{
 					Query query = new Query(line);

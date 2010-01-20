@@ -11,15 +11,22 @@ public class EvalPR {
 		cpr = new CalcPR(r);
 	}
 
+	static int queryErrorCount = 0;
+	static int docErrorCount = 0;
+
 	static int lineCount = 0;
 	static double[] prForConcepts;
 	static double[] bias;
 
 	public static double getPRByConcept(String concept) {
-		return prForConcepts[DictInfo.getId(concept)];
+		int id = DictInfo.getId(concept);
+		if (id < 0)
+			return 0;
+		return prForConcepts[id];
 	}
 
 	public static void eval(List<String> queryConcepts, List<String> docConcepts, double d, double queryBoost) {
+		queryErrorCount = docErrorCount = 0;
 		// PR for ccpts
 		/*
 		 * Input: bias: ccpt vector that appeared d: expand factor Algo: PR_n =
@@ -33,7 +40,8 @@ public class EvalPR {
 		for (String s : queryConcepts) {
 			int id = DictInfo.getId(s);
 			if (id == -1){
-				System.err.println("Concept " + s + " not found.");
+				//System.err.println("Concept " + s + " not found.");
+				++queryErrorCount;
 				continue;
 			}
 			bias[id]+=queryBoost;
@@ -41,13 +49,17 @@ public class EvalPR {
 		for (String s : docConcepts) {
 			int id = DictInfo.getId(s);
 			if (id == -1){
-				System.err.println("Concept " + s + " not found.");
+				//System.err.println("Concept " + s + " not found.");
+				++docErrorCount;
 				continue;
 			}
 			bias[id]++;
 		}
 		bias = cpr.normalize(bias);
+		System.out.println("Query Concept Errors: " + queryErrorCount + "/" + queryConcepts.size());
+		System.out.println("Doc Concept Errors: " + docErrorCount + "/" + docConcepts.size());
 		prForConcepts = cpr.calc(bias, d);
+		
 	}
 	
 
