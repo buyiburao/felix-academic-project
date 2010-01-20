@@ -17,7 +17,7 @@ public class PigPRCalculator {
 	}
 
 	public Map<String, Double> calc(List<String> queryConcepts,
-			List<String> docConcepts, double lambda, double queryBoost) {
+			List<String> docConcepts, double lambda, double queryBoost, int iterRounds, int extend) {
 		Map<String, Double> bias = new HashMap<String, Double>();
 		
 		for (String qc : queryConcepts) {
@@ -36,7 +36,7 @@ public class PigPRCalculator {
 			}
 		}
 		
-		return pig.selectNodes(bias.keySet(), EXTEND).calc(bias, lambda, ITER_ROUNDS);
+		return pig.selectNodes(bias.keySet(), extend).calc(bias, lambda, iterRounds);
 	}
 
 }

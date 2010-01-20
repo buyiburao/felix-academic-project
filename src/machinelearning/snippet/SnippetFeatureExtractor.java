@@ -28,13 +28,9 @@ public class SnippetFeatureExtractor {
 	public SnippetFeatureExtractor(Sentence s, Query q,
 			QueryDocumentConceptRankEvaluator evaluator, Properties properties)
 			throws Exception {
-		this(s, q, evaluator, properties, false);
-	}
-
-	public SnippetFeatureExtractor(Sentence s, Query q,
-			QueryDocumentConceptRankEvaluator evaluator, Properties properties,
-			boolean usePig) throws Exception {
 		sentence = s;
+		boolean usePig = Boolean.parseBoolean(properties.getProperty(
+				ConfigConstant.USE_PIG_CONFIG, ConfigConstant.DEFAULT_USE_PIG));
 		if (usePig)
 			fes.add(new PigRankFeatureExtractor(q, properties));
 		else

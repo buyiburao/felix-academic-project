@@ -2,7 +2,7 @@ package util.zunge;
 
 public class CalcPR {
 	static WSReader r;
-	static int iterTimes = 20;
+	public static int iterTimes = 20;
 	static int zoom = 1000000;
 
 	public CalcPR(WSReader r) {
