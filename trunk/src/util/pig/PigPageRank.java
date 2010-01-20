@@ -125,18 +125,15 @@ public class PigPageRank {
 		}
 
 		double[] cur = Arrays.copyOf(bias, bias.length);
-		for (int i = 0; i < N; ++i) {
-			cur[i] = cur[i] / outdegrees[i];
-		}
 		double[] temp = new double[N];
 		for (int i = 0; i < rounds; ++i) {
 			Arrays.fill(temp, 0);
 			
 			for (int j = 0; j < N; ++j) {
 				for (int k : inlinks.get(j)) {
-					temp[j] += cur[k];
+					temp[j] += cur[k] / outdegrees[k];
 				}
-				temp[j] = (temp[j] * (1 - lambda) + lambda * bias[j] / N) / outdegrees[j];
+				temp[j] = temp[j] * (1 - lambda) + lambda * bias[j] / N;
 			}
 			
 			cur = Arrays.copyOf(temp, temp.length);
@@ -145,7 +142,7 @@ public class PigPageRank {
 		Map<String, Double> ret = new HashMap<String, Double>();
 		for (String s : map.keySet()) {
 			int i = map.get(s);
-			ret.put(s, cur[i] * outdegrees[i]);
+			ret.put(s, cur[i]);
 		}
 		
 		System.out.println("Calc End\t" + new Date());
