@@ -68,6 +68,7 @@ public class PigPageRank {
 
 	public Map<String, Double> calc(Map<String, Double> pBias, double lambda,
 			int rounds) {
+		System.out.println("Calc Begin\t" + new Date());
 		Map<String, Integer> map = new HashMap<String, Integer>(nodes.size() * 2, 0.5f);
 		int index = 0;
 		for (String n : nodes) {
@@ -77,7 +78,7 @@ public class PigPageRank {
 		
 		int N = map.size();
 		System.out.println(N + "\t" + bigGraph.ccpts() + "\t"
-				+ (N * 100.0 / bigGraph.ccpts()) + "%\t" + new Date());
+				+ (N * 100.0 / bigGraph.ccpts()) + "%");
 		
 		double[] bias = new double[N];
 		for (String s : pBias.keySet()) {
@@ -116,7 +117,6 @@ public class PigPageRank {
 		}
 		double[] temp = new double[N];
 		for (int i = 0; i < rounds; ++i) {
-			System.out.println("Pig Rank " + i + "\t" + new Date());
 			Arrays.fill(temp, 0);
 			
 			for (int j = 0; j < N; ++j) {
@@ -134,6 +134,8 @@ public class PigPageRank {
 			int i = map.get(s);
 			ret.put(s, cur[i] * outdegrees[i]);
 		}
+		
+		System.out.println("Calc End\t" + new Date());
 		return ret;
 	}
 
