@@ -9,10 +9,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -50,7 +46,7 @@ class Record extends Thread
         this.url = url;
         this.googleSnippet = snippet;
         this.title = title;
-        this.body = null;
+        this.body = "";
         this.counter = counter;
     }
     
@@ -203,7 +199,7 @@ public class GoogleSearch  implements SearchEngine
         
     public static void submitQuery(String query, String file) throws IOException
     {
-        GoogleSearch bs = new GoogleSearch(query, 16);
+        GoogleSearch bs = new GoogleSearch(query, 24);
        
         Record[] records = new Record[bs.size()];
         Counter counter = new Counter();
@@ -232,39 +228,39 @@ public class GoogleSearch  implements SearchEngine
         }
         
         
-        BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(bs.size());
-        ThreadPoolExecutor pool = new ThreadPoolExecutor(16, 200, 30, TimeUnit.SECONDS, queue);
+//        BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(bs.size());
+//        ThreadPoolExecutor pool = new ThreadPoolExecutor(16, 200, 30, TimeUnit.SECONDS, queue);
+//        
+//        for (int i = 0; i < bs.size(); i++)
+//        {
+//            pool.execute(records[i]);
+//        }
         
-        for (int i = 0; i < bs.size(); i++)
-        {
-            pool.execute(records[i]);
-        }
-        
-        while(pool.getCompletedTaskCount() < 5)
-        {
-            try
-            {
-                Thread.sleep(3000);
-                System.out.println(pool.getCompletedTaskCount());
-            } 
-            catch (InterruptedException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-//            System.out.println(pool.getCompletedTaskCount());
-        }
+//        while(pool.getCompletedTaskCount() < 5)
+//        {
+//            try
+//            {
+//                Thread.sleep(3000);
+//                System.out.println(pool.getCompletedTaskCount());
+//            } 
+//            catch (InterruptedException e)
+//            {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+////            System.out.println(pool.getCompletedTaskCount());
+//        }
         
         
-        try
-        {
-            Thread.sleep(6000);
-        } catch (InterruptedException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        pool.shutdown();
+//        try
+//        {
+//            Thread.sleep(6000);
+//        } catch (InterruptedException e)
+//        {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//        pool.shutdown();
         System.out.println("outa");
         
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file))); 

@@ -8,6 +8,7 @@ public class Document extends Token
 
     List<Sentence> sentences;
     TermOccurence occurence;
+    private String description = "";
     
     public Document(String string)
     {
@@ -59,5 +60,21 @@ public class Document extends Token
     {
         readyOccurence();
         return occurence.getDistinctNum();
+    }
+    
+    /**
+     * @return Description of the document such as url, etc.
+     */
+    public String getDescription()
+    {
+        return description;
+    }
+    
+    /**
+     * @param description
+     */
+    public void setDescription(String description)
+    {
+        this.description = description;
     }
 }
