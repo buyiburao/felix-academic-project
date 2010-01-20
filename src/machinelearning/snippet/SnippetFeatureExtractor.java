@@ -18,7 +18,6 @@ import machinelearning.features.UniqueTermRepetitionSentenceFeatureExtractor;
 import search.object.FeatureValue;
 import search.object.Query;
 import search.object.Sentence;
-import util.ConceptPRCalculator;
 import util.QueryDocumentConceptRankEvaluator;
 
 public class SnippetFeatureExtractor {
