@@ -97,6 +97,7 @@ public class PigPageRank {
 		Map<String, Double> curr = new HashMap<String, Double>(bias);
 
 		for (int i = 0; i < rounds; ++i) {
+			System.out.println("Pig PageRank Round " + i);
 			Map<String, Double> temp = getEmptyVector(nodes);
 			
 			for (String node : bias.keySet()) {
