@@ -33,5 +33,10 @@ public class ExactMatchFeatureExtractor extends
 	public String getName() {
 		return this.getClass().getName();
 	}
-
+	public static void main(String[] args){
+		Sentence sentence = new Sentence("I believe in god");
+		Query query = new Query("believes in");
+		ExactMatchFeatureExtractor exact = new ExactMatchFeatureExtractor(query);
+		System.out.println(exact.getFeature(sentence));
+	}
 }

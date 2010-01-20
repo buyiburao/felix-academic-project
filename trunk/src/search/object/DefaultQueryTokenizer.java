@@ -23,7 +23,8 @@ public class DefaultQueryTokenizer extends QueryTokenizer
     
     public static void main(String[] args)
     {
-        String test = "c\\a& xxxx e482734 32874&^ dfjk&";
+//        String test = "c\\a& xxxx e482734 32874&^ dfjk& believe in me";
+    	String test = "believe in me";
         Query query = new Query(test);
         DefaultQueryTokenizer tokenizer = new DefaultQueryTokenizer();
         for(Term t : tokenizer.tokenize(query))
