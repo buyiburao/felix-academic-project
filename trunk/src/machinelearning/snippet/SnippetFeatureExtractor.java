@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Properties;
 
 import machinelearning.features.ConceptRankFeatureExtractor;
+import machinelearning.features.ConceptSimilarityFeatureExtractor;
 import machinelearning.features.ExactMatchFeatureExtractor;
 import machinelearning.features.LmFeature;
 import machinelearning.features.LocationSentenceFeatureExtractor;
@@ -35,6 +36,7 @@ public class SnippetFeatureExtractor {
 			fes.add(new PigRankFeatureExtractor(q, properties));
 		else
 			fes.add(new ConceptRankFeatureExtractor(q, evaluator));
+		fes.add(new ConceptSimilarityFeatureExtractor(q));
 		fes.add(new ExactMatchFeatureExtractor(q));
 		fes.add(new LmFeature(q, properties.getProperty(
 				ConfigConstant.TF_FILE_CONFIG, ConfigConstant.DEFAULT_TF_FILE),
