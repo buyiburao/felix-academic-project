@@ -12,7 +12,7 @@ import util.zunge.WSReader;
 public class PigPageRank {
 
 	private static WSReader bigGraph = null;
-	
+
 	private Map<String, List<String>> inlinks = new HashMap<String, List<String>>();
 
 	private Map<String, Integer> outdegrees = new HashMap<String, Integer>();
@@ -22,7 +22,7 @@ public class PigPageRank {
 			bigGraph = new WSReader(folder);
 		}
 	}
-	
+
 	public PigPageRank selectNodes(Set<String> set, int ext) {
 		Set<String> extended = extend(bigGraph, set, ext);
 
@@ -47,14 +47,13 @@ public class PigPageRank {
 				}
 			}
 		}
-		
+
 		return this;
 	}
-	
-	private Set<String> extend(WSReader bigGraph, Set<String> set,
-			int extend) {
+
+	private Set<String> extend(WSReader bigGraph, Set<String> set, int extend) {
 		Set<String> ret = new HashSet<String>();
-		
+
 		Set<String> border = new HashSet<String>();
 		for (String node : set) {
 			if (bigGraph.getId(node) >= 0) {
@@ -62,13 +61,13 @@ public class PigPageRank {
 			}
 		}
 		ret.addAll(border);
-		
+
 		for (int i = 0; i < extend; ++i) {
 			border = extend(bigGraph, border);
 			border.removeAll(ret);
 			ret.addAll(border);
 		}
-		
+
 		return ret;
 	}
 
@@ -86,12 +85,18 @@ public class PigPageRank {
 				}
 			}
 		}
-		
+
 		return ret;
 	}
 
 	public Map<String, Double> calc(Map<String, Double> bias, double lambda,
 			int rounds) {
+		for (String s : outdegrees.keySet()) {
+			if (!bias.containsKey(s)) {
+				bias.put(s, 0.0);
+			}
+		}
+		
 		Set<String> nodes = bias.keySet();
 		int N = nodes.size();
 		Map<String, Double> curr = new HashMap<String, Double>(bias);
@@ -99,18 +104,18 @@ public class PigPageRank {
 		for (int i = 0; i < rounds; ++i) {
 			System.out.println("Pig PageRank Round " + i);
 			Map<String, Double> temp = getEmptyVector(nodes);
-			
+
 			for (String node : bias.keySet()) {
 				double rank = 0;
-				
+
 				for (String source : inlinks.get(node)) {
 					rank += curr.get(source) / outdegrees.get(source);
 				}
-				
+
 				rank = (1 - lambda) * rank + lambda / N;
 				temp.put(node, rank);
 			}
-			
+
 			curr = new HashMap<String, Double>(temp);
 		}
 
@@ -124,5 +129,5 @@ public class PigPageRank {
 		}
 		return ret;
 	}
-	
+
 }
