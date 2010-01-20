@@ -34,7 +34,7 @@ public class DefaulDocumentTokenizer extends DocumentTokenizer
             {
                 Sentence sentence = new Sentence(string.substring(start, current + 1).trim());
                 sentence.setDoc(doc);
-                if (current != string.length() - 1 && string.charAt(current) == '?')
+                if (string.charAt(current) == '?')
                 	sentence.setQuestion();
                 sentences.add(sentence);
                 start = current + 1;
