@@ -12,6 +12,24 @@ public class SVMLightInputGenerator {
 		boolean withQid;
 		int qid;
 		ArrayList<FeatureValue> featureList = new ArrayList<FeatureValue>();
+		public String toString(){
+			StringBuilder builder = new StringBuilder();
+			builder.append(target);
+			builder.append(" ");
+			if (withQid){
+				builder.append("qid:" + qid);
+				builder.append(" ");
+			}
+			boolean first = true;
+			for (FeatureValue fv : featureList){
+				if (!first){
+					builder.append(" ");
+				}
+				first = false;
+				builder.append(fv.featureId + ":" + fv.value);
+			}
+			return builder.toString();
+		}
 	}
 	
 	private Case currentCase = new Case();
@@ -43,20 +61,7 @@ public class SVMLightInputGenerator {
 	public String dumpToString(){
 		StringBuilder builder = new StringBuilder();
 		for (Case c : cases){
-			builder.append(c.target);
-			builder.append(" ");
-			if (c.withQid){
-				builder.append("qid:" + c.qid);
-				builder.append(" ");
-			}
-			boolean first = true;
-			for (FeatureValue fv : c.featureList){
-				if (!first){
-					builder.append(" ");
-				}
-				first = false;
-				builder.append(fv.featureId + ":" + fv.value);
-			}
+			builder.append(c.toString());
 			builder.append("\n");
 		}
 		return builder.toString();
