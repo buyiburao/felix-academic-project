@@ -2,6 +2,7 @@ package machinelearning.snippet;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -20,17 +21,14 @@ import search.snippet.Record;
 public class QueryDocumentDistributor {
 	private int split = 1;
 	private int number = 0;
-	
+
 	private String queryFile;
 	private MysqlDriver driver = new MysqlDriver();
-	
-	public QueryDocumentDistributor(String queryFile)
-	{
+
+	public QueryDocumentDistributor(String queryFile) {
 		this.queryFile = queryFile;
 	}
-	
-	
-	
+
 	public QueryDocumentDistributor(String queryFile, int split, int number) {
 		super();
 		this.split = split;
@@ -38,25 +36,26 @@ public class QueryDocumentDistributor {
 		this.queryFile = queryFile;
 	}
 
-
-
-	public void distribute() throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException
-	{
+	public void distribute() throws Exception {
 		driver.connect();
 		Properties prop = new Properties();
-		prop.setProperty(ConfigConstant.LINK_FOLDER_CONFIG, "/root/Zunge/");
-		SnippetSVMLightInputGenerator gen = new SnippetSVMLightInputGenerator(prop);
+		if (System.getProperty("config") != null) {
+			String configFile = System.getProperty("config");
+			System.out.println("Loading user specified config: " + configFile);
+			prop.loadFromXML(new FileInputStream(configFile));
+		}
+		SnippetSVMLightInputGenerator gen = new SnippetSVMLightInputGenerator(
+				prop);
 		System.err.println();
 		try {
-			
-			BufferedReader reader = new BufferedReader(new FileReader(queryFile));
+
+			BufferedReader reader = new BufferedReader(
+					new FileReader(queryFile));
 			System.out.println(queryFile);
 			String line = null;
-			for (int i = 0; (line = reader.readLine()) != null; i++)
-			{
+			for (int i = 0; (line = reader.readLine()) != null; i++) {
 				System.err.println("Processing " + i);
-				if (i % split == number)
-				{
+				if (i % split == number) {
 					Query query = new Query(line);
 					System.out.println(line);
 					List<Record> records = driver.getRecord(query.getString(), true);
@@ -68,10 +67,11 @@ public class QueryDocumentDistributor {
 						{
 							String pageContent = driver.getPage(record.getUrl());
 							Document document = new Document(pageContent);
-							Map<String, Double> sentenceScoreMap = driver.getTraining(query.getString(), record.getUrl());
-							for(Sentence s : document.getSentences()){
-								if (sentenceScoreMap.containsKey(s.getString()))
-								{
+							Map<String, Double> sentenceScoreMap = driver
+									.getTraining(query.getString(), record
+											.getUrl());
+							for (Sentence s : document.getSentences()) {
+								if (sentenceScoreMap.containsKey(s.getString())) {
 									try 
 									{
 										gen.addCase(s, query, sentenceScoreMap.get(s.getString()), i * 5 + j);
@@ -87,11 +87,12 @@ public class QueryDocumentDistributor {
 						catch(Exception e)
 						{
 						}
-						
-						BufferedWriter writer = new BufferedWriter(new FileWriter("result-" + number));
+
+						BufferedWriter writer = new BufferedWriter(
+								new FileWriter("result-" + number));
 						writer.write(gen.dumpToString());
 						writer.close();
-//						System.out.print(gen.dumpToString());
+						// System.out.print(gen.dumpToString());
 					}
 				}
 			}
@@ -102,38 +103,21 @@ public class QueryDocumentDistributor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
-	
-	public static void main(String[] args)
-	{
+
+	public static void main(String[] args) throws Exception {
 		QueryDocumentDistributor distributor = null;
 		System.out.println("starts");
-		if (args.length != 2)
-		{
+		if (args.length != 2) {
 			distributor = new QueryDocumentDistributor("query.data/query");
-		}
-		else
-		{
+		} else {
 			int split = Integer.parseInt(args[0]);
 			int number = Integer.parseInt(args[1]);
-			distributor = new QueryDocumentDistributor("query.data/query", split, number);
+			distributor = new QueryDocumentDistributor("query.data/query",
+					split, number);
 		}
-		
-		try {
-			distributor.distribute();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		distributor.distribute();
 	}
 }

@@ -16,11 +16,14 @@ public class QueryDocumentConceptRankEvaluator {
 	protected double queryBoost;
 	protected Query q = new Query("");
 	protected Document doc = new Document("");
+	protected int iterNum;
 
 	public QueryDocumentConceptRankEvaluator(Properties prop) {
 		this.folder = prop.getProperty(ConfigConstant.LINK_FOLDER_CONFIG, ConfigConstant.DEFAULT_LINK_FOLDER);
 		this.queryBoost = Double.parseDouble(
 				prop.getProperty(ConfigConstant.QUERY_CONCEPT_BOOST_CONFIG, ConfigConstant.DEFAULT_QUERY_CONCEPT_BOOST));
+		this.iterNum = Integer.parseInt(
+				prop.getProperty(ConfigConstant.ITER_NUM_CONFIG, ConfigConstant.DEFAULT_ITER_NUM));
 	}
 
 	public double getConceptRank(Query q, Sentence sentence) throws Exception {
@@ -56,6 +59,6 @@ public class QueryDocumentConceptRankEvaluator {
 
 	protected void calculate(ArrayList<String> queryConceptList,
 			ArrayList<String> docConceptList) {
-		ConceptPRCalculator.calculate(queryConceptList, docConceptList, 0.1, queryBoost, this.folder);
+		ConceptPRCalculator.calculate(queryConceptList, docConceptList, 0.1, queryBoost, this.folder, iterNum);
 	}
 }

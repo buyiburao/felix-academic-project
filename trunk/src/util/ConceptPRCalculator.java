@@ -7,6 +7,7 @@ import search.esa.EsaInfo;
 import search.esa.GetEsa;
 import search.object.Query;
 import search.object.Term;
+import util.zunge.CalcPR;
 import util.zunge.EvalPR;
 import util.zunge.WSReader;
 
@@ -20,8 +21,9 @@ public class ConceptPRCalculator {
 		EvalPR.init(r);
 	}
 
-	static void calculate(List<String> queryConcepts, List<String> docConcepts, double d, double queryBoost, String graphFolder) {
+	static void calculate(List<String> queryConcepts, List<String> docConcepts, double d, double queryBoost, String graphFolder, int iterNum) {
 		init(graphFolder);
+		CalcPR.iterTimes = iterNum;
 		EvalPR.eval(queryConcepts, docConcepts, d, queryBoost);
 	}
 
