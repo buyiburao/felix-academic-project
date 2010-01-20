@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class PigPRCalculator {
 
-	private static final int EXTEND = 1;
+	private static final int EXTEND = 2;
 
 	private static final int ITER_ROUNDS = 20;
 	
