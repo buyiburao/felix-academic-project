@@ -36,6 +36,9 @@ public class PigPageRank {
 			List<String> list = inlinks.get(node);
 
 			int[] ins = bigGraph.getInLink(bigGraph.getId(node));
+			if (ins == null) {
+				ins = new int[0];
+			}
 			for (int in : ins) {
 				String concept = bigGraph.getCcpt(in);
 				if (nodes.contains(concept)) {
@@ -76,8 +79,10 @@ public class PigPageRank {
 			int id = bigGraph.getId(b);
 			if (id >= 0) {
 				int[] bins = bigGraph.getInLink(id);
-				for (int bin : bins) {
-					ret.add(bigGraph.getCcpt(bin));
+				if (bins != null) {
+					for (int bin : bins) {
+						ret.add(bigGraph.getCcpt(bin));
+					}
 				}
 			}
 		}
