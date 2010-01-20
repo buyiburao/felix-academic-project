@@ -2,7 +2,6 @@ package util.pig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,24 +68,28 @@ public class PigPageRank {
 
 	public Map<String, Double> calc(Map<String, Double> pBias, double lambda,
 			int rounds) {
-		List<String> list = new ArrayList<String>(nodes);
-		Collections.sort(list);
-		int N = list.size();
+		Map<String, Integer> map = new HashMap<String, Integer>(nodes.size() * 2, 0.5f);
+		int index = 0;
+		for (String n : nodes) {
+			map.put(n, index);
+			index++;
+		}
+		
+		int N = map.size();
 		System.out.println(N + "\t" + bigGraph.ccpts() + "\t"
 				+ (N * 100.0 / bigGraph.ccpts()) + "%\t" + new Date());
 		
 		double[] bias = new double[N];
 		for (String s : pBias.keySet()) {
-			int id = Collections.binarySearch(list, s);
-			if (id >= 0) {
+			Integer id = map.get(s);
+			if (id != null) {
 				bias[id] = pBias.get(s);
 			}
 		}
 		
-		List<List<Integer>> inlinks = new ArrayList<List<Integer>>();
+		Map<Integer, List<Integer>> inlinks = new HashMap<Integer, List<Integer>>();
 		int[] outdegrees = new int[N];
-		for (int i = 0; i < N; ++i) {
-			String s = list.get(i);
+		for (String s : map.keySet()) {
 			List<Integer> li = new ArrayList<Integer>();
 			int[] ins = bigGraph.getInLink(bigGraph.getId(s));
 			if (ins == null) {
@@ -94,13 +97,13 @@ public class PigPageRank {
 			}
 			for (int in : ins) {
 				String t = bigGraph.getCcpt(in);
-				int newIn = Collections.binarySearch(list, t);
-				if (newIn >= 0) {
+				Integer newIn = map.get(t);
+				if (newIn != null) {
 					li.add(newIn);
 					outdegrees[newIn]++;
 				}
 			}
-			inlinks.add(li);
+			inlinks.put(map.get(s), li);
 		}
 
 		double[] cur = Arrays.copyOf(bias, bias.length);
@@ -120,8 +123,8 @@ public class PigPageRank {
 		}
 		
 		Map<String, Double> ret = new HashMap<String, Double>();
-		for (int i = 0; i < list.size(); ++i) {
-			ret.put(list.get(i), cur[i]);
+		for (String s : map.keySet()) {
+			ret.put(s, cur[map.get(s)]);
 		}
 		return ret;
 	}
