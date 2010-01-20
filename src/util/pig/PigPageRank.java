@@ -1,6 +1,7 @@
 package util.pig;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -108,10 +109,11 @@ public class PigPageRank {
 		
 		Set<String> nodes = bias.keySet();
 		int N = nodes.size();
+		System.out.println(N);
 		Map<String, Double> curr = new HashMap<String, Double>(bias);
 
 		for (int i = 0; i < rounds; ++i) {
-			System.out.println("Pig PageRank Round " + i);
+			System.out.println("Pig PageRank Round " + i + "\t" + new Date());
 			Map<String, Double> temp = getEmptyVector(nodes);
 
 			for (String node : bias.keySet()) {
