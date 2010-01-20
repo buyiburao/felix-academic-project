@@ -3,6 +3,7 @@ package util.pig;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -71,7 +72,8 @@ public class PigPageRank {
 		List<String> list = new ArrayList<String>(nodes);
 		Collections.sort(list);
 		int N = list.size();
-		System.out.println(N + "\t" + bigGraph.ccpts() + "\t" + (N * 100.0 / bigGraph.ccpts()) + "%");
+		System.out.println(N + "\t" + bigGraph.ccpts() + "\t"
+				+ (N * 100.0 / bigGraph.ccpts()) + "%\t" + new Date());
 		
 		double[] bias = new double[N];
 		for (String s : pBias.keySet()) {
@@ -104,6 +106,7 @@ public class PigPageRank {
 		double[] cur = Arrays.copyOf(bias, bias.length);
 		double[] temp = new double[N];
 		for (int i = 0; i < rounds; ++i) {
+			System.out.println("Pig Rank " + i + "\t" + new Date());
 			Arrays.fill(temp, 0);
 			
 			for (int j = 0; j < N; ++j) {
