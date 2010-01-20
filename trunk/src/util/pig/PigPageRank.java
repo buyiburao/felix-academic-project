@@ -41,17 +41,23 @@ public class PigPageRank {
 
 		for (int i = 0; i < extend; ++i) {
 			System.out.println(">> " + ret.size());
-			border = extend(bigGraph, border);
+			Map<String, Integer> newcomers = extend(bigGraph, border);
+			border = new HashSet<String>(newcomers.keySet());
 			border.removeAll(ret);
-			ret.addAll(border);
+			
+			for (String s : border) {
+				if (newcomers.get(s) > i * 2) {
+					ret.add(s);
+				}
+			}
 		}
 		System.out.println(">> " + ret.size());
 
 		return ret;
 	}
 
-	private Set<String> extend(WSReader bigGraph, Set<String> border) {
-		Set<String> ret = new HashSet<String>();
+	private Map<String, Integer> extend(WSReader bigGraph, Set<String> border) {
+		Map<String, Integer> ret = new HashMap<String, Integer>();
 
 		for (String b : border) {
 			int id = bigGraph.getId(b);
@@ -60,7 +66,11 @@ public class PigPageRank {
 				if (bins != null) {
 					for (int bin : bins) {
 						String c = bigGraph.getCcpt(bin);
-						ret.add(c);
+						if (ret.containsKey(c)) {
+							ret.put(c, ret.get(c) + 1);
+						} else {
+							ret.put(c, 1);
+						}
 					}
 				}
 			}
