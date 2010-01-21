@@ -5,32 +5,45 @@ import search.esa.EsaInfo;
 import search.esa.GetEsa;
 import search.object.Query;
 import search.object.Sentence;
+import search.snippet.MysqlDriver;
+import util.GetConceptSingleton;
 
 public class ConceptSimilarityFeatureExtractor extends
 		QueryBiasedSentenceFeatureExtractor {
-	EsaInfo queryInfo;
+	ConceptVector queryInfo;
 	public ConceptSimilarityFeatureExtractor(Query query) throws Exception{
 		super(query);
-		queryInfo = GetEsa.getEsa(query.getString());
+		queryInfo = GetConceptSingleton.getInstance().getConceptVector(query.getString());
+		System.out.println(query.getString());
+		for (int i : queryInfo.getIdSet()){
+			System.out.println(i);
+		}
 	}
 
 	@Override
 	public double getFeature(Sentence s){
-		EsaInfo sentenceInfo = new EsaInfo();
+		ConceptVector sentenceInfo = null;
 		try{
-			sentenceInfo = GetEsa.getEsa(s.getString());
+			sentenceInfo = GetConceptSingleton.getInstance().getConceptVector(s.getString());
 		}catch(Exception e){
 			e.printStackTrace();
 			System.exit(-1);
 		}
-		ConceptVector qcv = new ConceptVector(queryInfo);
-		ConceptVector scv = new ConceptVector(sentenceInfo);
-		return qcv.similarity(scv);
+		if (sentenceInfo != null)
+			return sentenceInfo.similarity(queryInfo);
+		else
+			return 0;
 	}
 
 	@Override
 	public String getName() {
 		return null;
+	}
+	public static void main(String[] args) throws Exception{
+		Query q = new Query("reverse phone numbers");
+		Sentence s = new Sentence("com Find phone numbers for free on PhoneNumber.");
+		ConceptSimilarityFeatureExtractor sim = new ConceptSimilarityFeatureExtractor(q);
+		System.out.println(sim.getFeature(s));
 	}
 
 }

@@ -1,10 +1,10 @@
 package util;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import machinelearning.snippet.ConfigConstant;
-
 import search.esa.EsaInfo;
 import search.esa.GetEsa;
 import search.object.Document;
@@ -27,26 +27,21 @@ public class QueryDocumentConceptRankEvaluator {
 	}
 
 	public double getConceptRank(Query q, Sentence sentence) throws Exception {
+		GetConceptSingleton getter = GetConceptSingleton.getInstance();
 		if (!q.getString().equals(this.q.getString()) || !sentence.getDoc().equals(this.doc)) {
 			// recalculate PR
-			EsaInfo queryInfo = GetEsa.getEsa(q.getString());
-			ArrayList<String> queryConceptList = new ArrayList<String>();
-			for(String concept : queryInfo.concepts)
-				queryConceptList.add(concept);
-			ArrayList<String> docConceptList = new ArrayList<String>();
+			List<String> queryConceptList = getter.getConcepts(q.getString());
+			List<String> docConceptList = new ArrayList<String>();
 			for(Sentence sentenceInDoc : sentence.getDoc().getSentences()){
-				EsaInfo sentenceInfo = GetEsa.getEsa(sentenceInDoc.getString());
-				for(String concept : sentenceInfo.concepts){
-					docConceptList.add(concept);
-				}
+				docConceptList.addAll(getter.getConcepts(sentenceInDoc.getString()));
 			}
 			calculate(queryConceptList, docConceptList);
 			this.q = q;
 			this.doc = sentence.getDoc();
 		}
-		EsaInfo info = GetEsa.getEsa(sentence.getString());
+		List<String> sentenceConcepts = getter.getConcepts(sentence.getString());
 		double sum = 0;
-		for (String str : info.concepts) {
+		for (String str : sentenceConcepts) {
 			sum += getPRByConcept(str);
 		}
 		return sum;
@@ -57,8 +52,8 @@ public class QueryDocumentConceptRankEvaluator {
 		return ConceptPRCalculator.getPRByConcept(str);
 	}
 
-	protected void calculate(ArrayList<String> queryConceptList,
-			ArrayList<String> docConceptList) {
+	protected void calculate(List<String> queryConceptList,
+			List<String> docConceptList) {
 		ConceptPRCalculator.calculate(queryConceptList, docConceptList, 0.1, queryBoost, this.folder, iterNum);
 	}
 }
