@@ -1,4 +1,4 @@
-package org.apexlab;
+package org.apexlab.docserver;
 
 import java.io.BufferedReader;
 import java.io.File;
