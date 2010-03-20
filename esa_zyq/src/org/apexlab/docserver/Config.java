@@ -1,5 +1,5 @@
 package org.apexlab.docserver;
 
 public class Config {
-	public final String serverString = "rmi://localhost:18983/wiki";
+	public static final String serverString = "rmi://10.1.134.147/wiki";
 }
