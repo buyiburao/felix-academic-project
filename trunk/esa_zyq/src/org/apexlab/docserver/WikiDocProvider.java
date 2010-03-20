@@ -26,7 +26,7 @@ public class WikiDocProvider extends UnicastRemoteObject implements IWikiDocProv
 	@Override
 	public String getDocContentByTitle(String title) throws RemoteException {
 		try {
-			TermDocs td = reader.termDocs(new Term(title));
+			TermDocs td = reader.termDocs(new Term("title", title));
 			if (td.next()) {
 				return reader.document(td.doc()).getField("content")
 						.stringValue();
