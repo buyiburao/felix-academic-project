@@ -44,7 +44,7 @@ public class WikiDocProvider extends UnicastRemoteObject implements IWikiDocProv
 		System.err.println(testStr);
 		System.err.println();
 		LocateRegistry.createRegistry(18983);
-		Naming.bind("wiki", wdp);
+		Naming.bind("rmi://localhost:18983/wiki", wdp);
 		System.err.println("server started");
 	}
 
